@@ -10,14 +10,12 @@ export async function handleAuthTokenRequest(req: Request, res: Response) {
     const tokenRequestConfig = {
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
-        // redirect_uri: 'https://www.example.com/authenticate/google',
+        redirect_uri: 'http://localhost:4200/auth',
         grant_type: 'authorization_code',
-        // code: req.params['code']
-        code: '4/zwEsAU4NFG6VLdNQLLXvUYyEZuvNzdST33ZCwObPFumF1RP3FobfZwKw8wCaYw47M9UNMC7DuF6h1n2unxa93Jo'
+        code: decodeURIComponent(req.params['code'])
     }
     try {
         const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);   
-        console.log(token);
         res.json(token['data']);
     } catch (error) {
         console.log(error);
