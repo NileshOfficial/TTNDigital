@@ -1,12 +1,14 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as uris from '../uris.conf';
+import * as authExceptions from '../customExceptions/auth.exceptions';
+import { ResourceNotFound } from '../customExceptions/generic.exceptions';
+import { CustomExceptionTemplate } from '../customExceptions/exception.model';
 
 dotenv.config();
 
-export async function handleAuthTokenRequest(req: Request, res: Response) {
-
+export async function handleGetAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
     const tokenRequestConfig = {
         client_id: process.env.CLIENT_ID,
         client_secret: process.env.CLIENT_SECRET,
@@ -14,15 +16,16 @@ export async function handleAuthTokenRequest(req: Request, res: Response) {
         grant_type: 'authorization_code',
         code: decodeURIComponent(req.params['code'])
     }
+
     try {
         const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);
-        res.json(token['data']);
-    } catch (error) {
-        console.log(error);
+        return res.json(token['data']);
+    } catch (err) {
+        next(new authExceptions.InvalidTokenGrantCode('invalid code', 401, err['response']['data']));
     }
 }
 
-export async function handleRefreshAuthTokenRequest(req: Request, res: Response) {
+export async function handleRefreshAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
     const tokenRequestConfig = {
         grant_type: "refresh_token",
         refresh_token: req.body['refreshToken'],
@@ -33,20 +36,32 @@ export async function handleRefreshAuthTokenRequest(req: Request, res: Response)
     try {
         const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);
         res.json(token['data']);
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
     }
 }
 
 export async function verifyTokenMidware(req: Request, res: Response, next: NextFunction) {
     const accessToken = req.headers['authorization'].split(' ')[1];
-    
-    try{
+
+    try {
         const verificationResponse = await axios.get(uris.oAuthTokenInfoUri + `?access_token=${accessToken}`);
         return next();
     } catch (err) {
-        console.log(err);
-        return res.json(err['data']);
+        next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
     }
+}
 
+export function handleWildCardRequests(req: Request, res: Response, next: NextFunction) {
+    next(new ResourceNotFound('requested resource not found', 404));
+}
+
+export function errorHandlingMidware(err: CustomExceptionTemplate, req: Request, res: Response, next: NextFunction) {
+    res.status(err.responseCode || 400);
+    res.json({
+        error: err.name,
+        errorCode: err.code,
+        message: err.message,
+        payload: err.payload
+    });
 }
