@@ -2,8 +2,8 @@ import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as uris from '../uris.conf';
-import * as authExceptions from '../customExceptions/auth.exceptions';
-import { ResourceNotFound } from '../customExceptions/generic.exceptions';
+import * as authExceptions from '../customExceptions/auth/auth.exceptions';
+import { ResourceNotFound } from '../customExceptions/generic/generic.exceptions';
 import { CustomExceptionTemplate } from '../customExceptions/exception.model';
 
 dotenv.config();

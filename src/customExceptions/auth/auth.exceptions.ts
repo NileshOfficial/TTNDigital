@@ -1,5 +1,5 @@
 import * as codes from './auth.errCodes';
-import { CustomExceptionTemplate } from './exception.model';
+import { CustomExceptionTemplate } from '../exception.model';
 
 export class InvalidTokenGrantCode extends CustomExceptionTemplate {
 

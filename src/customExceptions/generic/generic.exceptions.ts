@@ -1,5 +1,5 @@
 import * as codes from './generic.errCodes';
-import { CustomExceptionTemplate } from './exception.model';
+import { CustomExceptionTemplate } from '../exception.model';
 
 export class ResourceNotFound extends CustomExceptionTemplate {
     code: string;
