@@ -43,7 +43,8 @@ export async function handleRefreshAuthTokenRequest(req: Request, res: Response,
 
 export async function handleRevokeAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
     try {
-        await axios.post(uris.oAuthTokenRevokeUri + `?token=${req.body['refreshToken']}`, {});
+        console.log(encodeURIComponent(req.body['refreshToken']));
+        await axios.post(uris.oAuthTokenRevokeUri + `?token=${encodeURIComponent(req.body['refreshToken'])}`, {});
         res.json({success: true});
     } catch(err) {
         next(new authExceptions.InvalidAuthToken('invalid token or it is already expired or revoked', 401, err['response']['data']));
