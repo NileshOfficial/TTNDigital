@@ -5,6 +5,7 @@ import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
 import { ResourceNotFound } from '../customExceptions/generic/generic.exceptions';
 import { CustomExceptionTemplate } from '../customExceptions/exception.model';
+import { RequiredKeyAbsent } from '../customExceptions/validation/validation.exceptions';
 
 dotenv.config();
 
@@ -21,11 +22,14 @@ export async function handleGetAuthTokenRequest(req: Request, res: Response, nex
         const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);
         return res.json(token['data']);
     } catch (err) {
-        next(new authExceptions.InvalidTokenGrantCode('invalid code', 401, err['response']['data']));
+        return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401, err['response']['data']));
     }
 }
 
 export async function handleRefreshAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
+    if(!req.body || !req.body['refreshToken'])
+        return next(new RequiredKeyAbsent('refresh token not provided', 400));
+    
     const tokenRequestConfig = {
         grant_type: "refresh_token",
         refresh_token: req.body['refreshToken'],
@@ -35,19 +39,21 @@ export async function handleRefreshAuthTokenRequest(req: Request, res: Response,
 
     try {
         const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);
-        res.json(token['data']);
+        return res.json(token['data']);
     } catch (err) {
-        next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
+        return next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
     }
 }
 
 export async function handleRevokeAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
+    if(!req.body || !req.body['refreshToken'])
+        return next(new RequiredKeyAbsent('refresh token not provided', 400));
+    
     try {
-        console.log(encodeURIComponent(req.body['refreshToken']));
         await axios.post(uris.oAuthTokenRevokeUri + `?token=${encodeURIComponent(req.body['refreshToken'])}`, {});
-        res.json({success: true});
+        return res.json({success: true});
     } catch(err) {
-        next(new authExceptions.InvalidAuthToken('invalid token or it is already expired or revoked', 401, err['response']['data']));
+        return next(new authExceptions.InvalidAuthToken('invalid token or it is already expired or revoked', 401, err['response']['data']));
     }
 }
 
@@ -55,20 +61,20 @@ export async function verifyTokenMidware(req: Request, res: Response, next: Next
     const accessToken = req.headers['authorization'].split(' ')[1];
 
     try {
-        const verificationResponse = await axios.get(uris.oAuthTokenInfoUri + `?access_token=${accessToken}`);
+        await axios.get(uris.oAuthTokenInfoUri + `?access_token=${accessToken}`);
         return next();
     } catch (err) {
-        next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
+        return next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
     }
 }
 
 export function handleWildCardRequests(req: Request, res: Response, next: NextFunction) {
-    next(new ResourceNotFound('requested resource not found', 404));
+    return next(new ResourceNotFound('requested resource not found', 404));
 }
 
 export function errorHandlingMidware(err: CustomExceptionTemplate, req: Request, res: Response, next: NextFunction) {
     res.status(err.responseCode || 400);
-    res.json({
+    return res.json({
         error: err.name,
         errorCode: err.code,
         message: err.message,

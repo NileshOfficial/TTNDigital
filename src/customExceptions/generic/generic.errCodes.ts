@@ -1,1 +1,1 @@
-export const notFound = 'RESOURCE_NOT_FOUND'
+export const notFound = 'RESOURCE_NOT_FOUND';
