@@ -1,0 +1,1 @@
+export const notFound = 'RESOURCE_NOT_FOUND'
