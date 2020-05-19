@@ -8,30 +8,30 @@ import { CustomExceptionTemplate } from '../customExceptions/exception.model';
 export function retrieveAuthHeadersMidware(req: Request, res: Response, next: NextFunction) {
     try {
         if (!req.headers['authorization'])
-        return next(new authExceptions.AuthHeaderAbsent('authorization header missing', 401));
+            return next(new authExceptions.AuthHeaderAbsent('authorization header missing', 401));
 
-    const headersSequence = ['access_token', 'id_token'];
-    const authHeader = req.headers['authorization'].split(',');
-    const tokens: Array<string> = [];
+        const headersSequence = ['access_token', 'id_token'];
+        const authHeader = req.headers['authorization'].split(',');
+        const tokens: Array<string> = [];
 
-    for (let idx = 0; idx < authHeader.length; idx++) {
-        let splitPieces = authHeader[idx].split(' ');
-        if (splitPieces[0] !== 'Bearer')
-            return next(new authExceptions.InvalidAuthHeaderFormat('auth tokens should be of bearer type', 401));
-        else if (!splitPieces[1])
-            return next(new authExceptions.AuthTokenAbsent('auth token missing', 401));
-        tokens.push(splitPieces[1]);
-    }
+        for (let idx = 0; idx < authHeader.length; idx++) {
+            let splitPieces = authHeader[idx].trim().split(' ');
+            if (splitPieces[0].trim() !== 'Bearer')
+                return next(new authExceptions.InvalidAuthHeaderFormat('auth tokens should be of bearer type', 401));
+            else if (!splitPieces[1])
+                return next(new authExceptions.AuthTokenAbsent('auth token missing', 401));
+            tokens.push(splitPieces[1].trim());
+        }
 
-    const authTokens = {};
+        const authTokens = {};
 
-    tokens.forEach((token, idx) => {
-        authTokens[headersSequence[idx]] = token;
-    });
+        tokens.forEach((token, idx) => {
+            authTokens[headersSequence[idx]] = token;
+        });
 
-    req['retrievedHeaders'] = authTokens;
-    return next();
-    } catch(err) {
+        req['retrievedHeaders'] = authTokens;
+        return next();
+    } catch (err) {
         return next(new InternalServerError('error occurred', 500));
     }
 }
@@ -50,7 +50,8 @@ export async function validateIdTokenMidware(req: Request, res: Response, next: 
         return next(new authExceptions.AuthTokenAbsent('auth token missing', 401));
 
     try {
-        await axios.get(uris.oAuthTokenInfoUri + `?id_token=${req['retrievedHeaders']['id_token']}`);
+        req['userProfile'] = (await axios.get(uris.oAuthTokenInfoUri + `?id_token=${req['retrievedHeaders']['id_token']}`))['data'];
+        return next();
     } catch (err) {
         return next(new authExceptions.InvalidAuthToken('invalid id_token', 401, err['response']['data']))
     }
