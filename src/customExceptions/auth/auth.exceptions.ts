@@ -18,3 +18,29 @@ export class InvalidAuthToken extends CustomExceptionTemplate {
         this.stack = `${this.message}\n${new Error().stack}`;
     }
 }
+
+export class AuthHeaderAbsent extends CustomExceptionTemplate {
+
+    constructor(message: string, responseCode: number, payload?: object) {
+        super(message, codes.authHeaderAbsent, responseCode, payload);
+        this.name = 'AuthHeaderAbsentError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
+
+export class InvalidAuthHeaderFormat extends CustomExceptionTemplate {
+    constructor(message: string, responseCode: number, payload?: object) {
+        super(message, codes.invalidAuthHeaderFormat, responseCode, payload);
+        this.name = 'InvalidAuthHeaderFormatError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
+
+export class AuthTokenAbsent extends CustomExceptionTemplate {
+
+    constructor(message: string, responseCode: number, payload?: object) {
+        super(message, codes.authTokenAbsent, responseCode, payload);
+        this.name = 'AuthTokenAbsentError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
