@@ -4,7 +4,6 @@ import * as dotenv from 'dotenv';
 import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
 import { ResourceNotFound } from '../customExceptions/generic/generic.exceptions';
-import { CustomExceptionTemplate } from '../customExceptions/exception.model';
 import { RequiredKeyAbsent } from '../customExceptions/validation/validation.exceptions';
 
 dotenv.config();
@@ -57,27 +56,7 @@ export async function handleRevokeAuthTokenRequest(req: Request, res: Response, 
     }
 }
 
-export async function verifyTokenMidware(req: Request, res: Response, next: NextFunction) {
-    const accessToken = req.headers['authorization'].split(' ')[1];
-
-    try {
-        await axios.get(uris.oAuthTokenInfoUri + `?access_token=${accessToken}`);
-        return next();
-    } catch (err) {
-        return next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
-    }
-}
-
 export function handleWildCardRequests(req: Request, res: Response, next: NextFunction) {
     return next(new ResourceNotFound('requested resource not found', 404));
 }
 
-export function errorHandlingMidware(err: CustomExceptionTemplate, req: Request, res: Response, next: NextFunction) {
-    res.status(err.responseCode || 400);
-    return res.json({
-        error: err.name,
-        errorCode: err.code,
-        message: err.message,
-        payload: err.payload
-    });
-}
