@@ -27,7 +27,7 @@ const buzzSchema = new Schema({
         type: Number,
         default: Date.now()
     },
-    user: {
+    email: {
         type: String,
         required: true
     }

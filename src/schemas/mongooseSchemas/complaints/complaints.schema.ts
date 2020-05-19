@@ -2,12 +2,18 @@ import mongoose, { Schema } from 'mongoose';
 import { Complaint } from './complaints.model';
 
 const complaintSchema = new Schema({
+    issueId: {
+        type: String,
+        required: true
+    },
     department: {
         type: String,
+        enum: ['Admin', 'IT', 'Infra', 'HR'],
         required: true
     },
     title: {
         type: String,
+        enum: ['Hardware', 'Infrastructure', 'Others'],
         required: true
     },
     name: {
@@ -27,6 +33,7 @@ const complaintSchema = new Schema({
     }],
     status: {
         type: String,
+        enum: ['Open', 'Resolved', 'In Progress'],
         required: true
     },
     estimatedTime: {
@@ -36,6 +43,7 @@ const complaintSchema = new Schema({
         },
         spanType: {
             type: String,
+            enum: ['hours', 'days', 'weeks', 'months'],
             required: true
         }
     }
