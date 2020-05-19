@@ -10,11 +10,10 @@ const buzzSchema = new Schema({
         enum: ['activity', 'lost and found'],
         required: true
     },
-    images: [
-        {
-            type: String
-        }
-    ],
+    images: {
+            type: [String],
+            default: []
+        },
     likes: {
         type: Number,
         default: 0
