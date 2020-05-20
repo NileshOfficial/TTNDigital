@@ -19,8 +19,13 @@ const fileFilter = function (req: Request, file: Express.Multer.File, callback: 
     else callback(new UnsupportedFileType('only images are allowed', 400), false);
 }
 
-export const upload = multer({
+export const uploadImages = multer({
     storage: storage,
     limits: { fileSize: 1024 * 1024 * 5 },
     fileFilter: fileFilter
+});
+
+export const uploadAny = multer({
+    storage: storage,
+    limits: { fileSize: 1024 * 1024 * 5 }
 });
