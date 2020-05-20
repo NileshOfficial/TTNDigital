@@ -4,6 +4,7 @@ import mongoose, { ConnectionOptions } from 'mongoose';
 import { PORT } from './serve.conf';
 import { authRouter } from './routes/auth.routes';
 import { buzzRouter } from './routes/buzz.routes';
+import { complaintsRouter } from './routes/complaints.routes';
 import * as genericMidwares from './controllers/generic.midwares';
 import { dbConnectionUri } from './uris.conf';
 
@@ -15,6 +16,7 @@ app.use(cors());
 app.use('/Images', express.static('../buzzUploads'));
 app.use('/auth', authRouter);
 app.use('/buzz', buzzRouter);
+app.use('/complaints', complaintsRouter)
 app.use(genericMidwares.handleWildCardRequests);
 app.use(genericMidwares.errorHandlingMidware);
 
