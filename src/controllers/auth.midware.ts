@@ -3,7 +3,6 @@ import axios from 'axios';
 import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
-import { CustomExceptionTemplate } from '../customExceptions/exception.model';
 
 export function retrieveAuthHeadersMidware(req: Request, res: Response, next: NextFunction) {
     try {
@@ -55,14 +54,4 @@ export async function validateIdTokenMidware(req: Request, res: Response, next: 
     } catch (err) {
         return next(new authExceptions.InvalidAuthToken('invalid id_token', 401, err['response']['data']))
     }
-}
-
-export function errorHandlingMidware(err: CustomExceptionTemplate, req: Request, res: Response, next: NextFunction) {
-    res.status(err.responseCode || 400);
-    return res.json({
-        error: err.name,
-        errorCode: err.code,
-        message: err.message,
-        payload: err.payload
-    });
 }

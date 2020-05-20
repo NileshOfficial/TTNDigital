@@ -3,7 +3,6 @@ import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
-import { ResourceNotFound } from '../customExceptions/generic/generic.exceptions';
 import { RequiredKeyAbsent } from '../customExceptions/validation/validation.exceptions';
 
 dotenv.config();
@@ -55,8 +54,3 @@ export async function handleRevokeAuthTokenRequest(req: Request, res: Response, 
         return next(new authExceptions.InvalidAuthToken('invalid token or it is already expired or revoked', 401, err['response']['data']));
     }
 }
-
-export function handleWildCardRequests(req: Request, res: Response, next: NextFunction) {
-    return next(new ResourceNotFound('requested resource not found', 404));
-}
-

@@ -12,5 +12,3 @@ buzzRouter.route('/')
 
 buzzRouter.patch('/like/:docId', buzzControllers.updateLikes);
 buzzRouter.patch('/dislike/:docId', buzzControllers.updateDisLikes);
-
-buzzRouter.use(authMidwares.errorHandlingMidware);
