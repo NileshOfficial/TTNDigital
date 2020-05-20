@@ -34,7 +34,8 @@ const complaintSchema = new Schema({
     status: {
         type: String,
         enum: ['Open', 'Resolved', 'In Progress'],
-        required: true
+        required: true,
+        default: 'Open'
     },
     estimatedTime: {
         value: {
