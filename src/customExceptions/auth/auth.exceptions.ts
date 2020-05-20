@@ -29,6 +29,7 @@ export class AuthHeaderAbsent extends CustomExceptionTemplate {
 }
 
 export class InvalidAuthHeaderFormat extends CustomExceptionTemplate {
+    
     constructor(message: string, responseCode: number, payload?: object) {
         super(message, codes.invalidAuthHeaderFormat, responseCode, payload);
         this.name = 'InvalidAuthHeaderFormatError';
@@ -41,6 +42,15 @@ export class AuthTokenAbsent extends CustomExceptionTemplate {
     constructor(message: string, responseCode: number, payload?: object) {
         super(message, codes.authTokenAbsent, responseCode, payload);
         this.name = 'AuthTokenAbsentError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
+
+export class UnauthorizedAccessRequest extends CustomExceptionTemplate {
+    
+    constructor(message: string, responseCode: number, payload?: object) {
+        super(message, codes.unauthorizedAccessRequest, responseCode, payload);
+        this.name = 'UnauthorizedAccessError';
         this.stack = `${this.message}\n${new Error().stack}`;
     }
 }
