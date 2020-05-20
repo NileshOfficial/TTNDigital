@@ -45,7 +45,6 @@ const complaintSchema = new Schema({
         spanType: {
             type: String,
             enum: ['hours', 'days', 'weeks', 'months'],
-            required: true
         }
     }
 });
