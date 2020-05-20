@@ -20,6 +20,14 @@ const complaintSchema = new Schema({
         type: String,
         required: true
     },
+    lockedBy: {
+        type: String,
+        required: true
+    },
+    assignedTo: {
+        type: String,
+        required: true
+    },
     email: {
         type: String,
         required: true
@@ -39,8 +47,7 @@ const complaintSchema = new Schema({
     },
     estimatedTime: {
         value: {
-            type: Number,
-            required: true
+            type: Number
         },
         spanType: {
             type: String,
