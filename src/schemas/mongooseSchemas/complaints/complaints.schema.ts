@@ -47,11 +47,13 @@ const complaintSchema = new Schema({
     },
     estimatedTime: {
         value: {
-            type: Number
+            type: Number,
+            default: 0
         },
         spanType: {
             type: String,
             enum: ['hours', 'days', 'weeks', 'months'],
+            default: 'hours'
         }
     }
 });
