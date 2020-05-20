@@ -6,7 +6,7 @@ import { upload } from '../controllers/multer.midware';
 export const buzzRouter = express.Router();
 
 buzzRouter.route('/')
-    .get()
+    .get(buzzControllers.getBuzzes)
     // .post(retrieveAuthHeadersMidware, verifyTokenMidware, validateIdTokenMidware, upload.array('files'), buzzControllers.createBuzz)
     .post(upload.array('files'), buzzControllers.createBuzz);
 

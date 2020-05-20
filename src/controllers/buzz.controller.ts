@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as buzzService from '../services/buzz.service';
+import buzzSchema from '../schemas/mongooseSchemas/buzz/buzz.schema';
 
 function retrieveFileNames(files) {
     const filePaths = [];
@@ -26,6 +27,17 @@ export async function createBuzz(req: Request, res: Response, next: NextFunction
     }
 }
 
+export async function getBuzzes(req: Request, res: Response, next: NextFunction) {
+    const skipCount = req.query['skip'] as string;
+    try {
+        const result = await buzzService.getBuzz(Number(skipCount));
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
+
+}
+
 export async function updateLikes(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await buzzService.updateLikes(req.params['docId'], true, Boolean(req.query['reverse']));
@@ -38,7 +50,7 @@ export async function updateLikes(req: Request, res: Response, next: NextFunctio
 export async function updateDisLikes(req: Request, res: Response, next: NextFunction) {
     try {
         const result = await buzzService.updateLikes(req.params['docId'], false, Boolean(req.query['reverse']));
-       res.json(result); 
+        res.json(result);
     } catch (err) {
         next(err);
     }

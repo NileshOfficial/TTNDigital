@@ -18,10 +18,11 @@ export async function createBuzz(buzzData: IBuzz) {
     }
 }
 
-export async function getBuzz() {
+export async function getBuzz(skip: number) {
     try {
-        await Buzz.find();
+        return await Buzz.find().limit(10).skip(skip ? skip : 0);
     } catch (err) {
+        console.log(err);
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
     }
 }
