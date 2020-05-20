@@ -6,7 +6,7 @@ import * as responses from '../response.messages';
 
 export async function getUserComplaints(email: string, limit: number, skip: number) {
     try {
-        return await Complaints.find({ email: email }).limit(limit).skip(skip);
+        return await Complaints.find({ email: email }).limit(limit ? limit : 0).skip(skip ? skip : 0);
     } catch (err) {
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
     }
@@ -14,7 +14,7 @@ export async function getUserComplaints(email: string, limit: number, skip: numb
 
 export async function getAllComplaints(limit: number, skip: number) {
     try {
-        return await Complaints.find().limit(limit).skip(skip);
+        return await Complaints.find().limit(limit ? limit : 0).skip(skip ? skip : 0);
     } catch (err) {
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
     }
@@ -24,7 +24,7 @@ export async function createComplaint(complaintData: IComplaint) {
     const complaint = new Complaints(complaintData);
 
     try {
-        await complaint.save();
+        console.log(await complaint.save());
         return responses.insertionSuccessful;
     } catch (err) {
         if (err.name === 'ValidationError')
