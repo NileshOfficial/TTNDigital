@@ -4,12 +4,14 @@ import { Complaint } from './complaints.model';
 const complaintSchema = new Schema({
     issueId: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     },
     department: {
         type: String,
         enum: ['Admin', 'IT', 'Infra', 'HR'],
-        required: true
+        required: true,
+        immutable: true
     },
     title: {
         type: String,
@@ -18,11 +20,13 @@ const complaintSchema = new Schema({
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     },
     lockedBy: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     },
     assignedTo: {
         type: String,
@@ -30,7 +34,8 @@ const complaintSchema = new Schema({
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     },
     description: {
         type: String,
@@ -58,7 +63,8 @@ const complaintSchema = new Schema({
     },
     timestamp: {
         type: Number,
-        default: Date.now()
+        default: Date.now(),
+        immutable: true
     }
 });
 
