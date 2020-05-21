@@ -15,7 +15,7 @@ export async function getUserComplaints(email: string, limit: number, skip: numb
 
 export async function getAllComplaints(query: object, limit: number, skip: number) {
     try {
-        return await Complaints.find(query, 'department issueId lockedBy assignedTo status estimatedTime description').sort({ timestamp: -1 }).limit(limit ? limit : 0).skip(skip ? skip : 0);
+        return await Complaints.find(query, 'department issueId lockedBy assignedTo status estimatedTime description email').sort({ timestamp: -1 }).limit(limit ? limit : 0).skip(skip ? skip : 0);
     } catch (err) {
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
     }
@@ -36,9 +36,8 @@ export async function createComplaint(complaintData: IComplaint) {
 }
 
 export async function updateComplaint(id, complaintData: IComplaint) {
-    console.log(complaintData);
     try {
-        await Complaints.findByIdAndUpdate(id, { $set: complaintData });
+        console.log(await Complaints.findByIdAndUpdate(id, { $set: complaintData }, {runValidators: true}).exec());
         return responses.updationSuccessful;
     } catch (err) {
         console.log(err, err.message);
