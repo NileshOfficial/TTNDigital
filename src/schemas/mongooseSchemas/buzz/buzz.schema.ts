@@ -24,11 +24,13 @@ const buzzSchema = new Schema({
     },
     date: {
         type: Number,
-        default: Date.now()
+        default: Date.now(),
+        immutable: true
     },
     email: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     }
 });
 
