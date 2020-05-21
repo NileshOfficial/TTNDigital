@@ -4,7 +4,9 @@ import { Admin } from './admin.model';
 const adminSchema = new Schema({
     email: {
         type: String,
-        required: true
+        required: true,
+        immutable: true,
+        unique: true
     }
 });
 
