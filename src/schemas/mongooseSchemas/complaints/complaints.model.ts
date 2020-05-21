@@ -11,5 +11,6 @@ export interface Complaint extends Document {
     estimatedTime: {
         value: number,
         spanType: string
-    }
+    },
+    timestamp: number
 }

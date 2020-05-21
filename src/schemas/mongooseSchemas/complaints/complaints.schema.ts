@@ -55,6 +55,10 @@ const complaintSchema = new Schema({
             enum: ['hours', 'days', 'weeks', 'months'],
             default: 'hours'
         }
+    },
+    timestamp: {
+        type: Number,
+        default: Date.now()
     }
 });
 
