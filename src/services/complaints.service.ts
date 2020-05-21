@@ -37,7 +37,7 @@ export async function createComplaint(complaintData: IComplaint) {
 
 export async function updateComplaint(id, complaintData: IComplaint) {
     try {
-        console.log(await Complaints.findByIdAndUpdate(id, { $set: complaintData }, {runValidators: true}).exec());
+        await Complaints.findByIdAndUpdate(id, { $set: complaintData }, {runValidators: true}).exec();
         return responses.updationSuccessful;
     } catch (err) {
         console.log(err, err.message);
