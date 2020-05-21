@@ -10,3 +10,4 @@ complaintsRouter.route('/')
     .post(uploadAny.array('files'), complaintControllers.createComplaint);
 
 complaintsRouter.get('/all', checkAdmin, complaintControllers.getAllComplaints);
+complaintsRouter.patch('/:id', complaintControllers.updateComplaint);

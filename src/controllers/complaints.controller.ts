@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, response } from 'express';
 import * as complaintsService from '../services/complaints.service';
 
 const customId = require('custom-id');
 
 function retrieveFileNames(files) {
+    
     const filePaths = [];
     const fileData = [].concat(files);
 
@@ -15,6 +16,7 @@ function retrieveFileNames(files) {
 }
 
 export async function getUserComplaints(req: Request, res: Response, next: NextFunction) {
+    
     try {
         const limit = req.query['limit'] as string;
         const skip = req.query['skip'] as string;
@@ -26,14 +28,14 @@ export async function getUserComplaints(req: Request, res: Response, next: NextF
 }
 
 export async function getAllComplaints(req: Request, res: Response, next: NextFunction) {
-
+    
     const skip = req.query['skip'] as string;
     delete req.query['skip'];
     const limit = req.query['limit'] as string;
     delete req.query['limit'];
 
     let queryDoc = req.query['issueId'] ? { 'issueId': req.query['issueId'] } : req.query;
-    
+
     try {
         const result = await complaintsService.getAllComplaints(queryDoc, Number(limit), Number(skip));
         res.json(result);
@@ -43,6 +45,7 @@ export async function getAllComplaints(req: Request, res: Response, next: NextFu
 }
 
 export async function createComplaint(req: Request, res: Response, next: NextFunction) {
+    
     if (req.files)
         req.body['files'] = retrieveFileNames(req.files);
     console.log()
@@ -63,4 +66,14 @@ export async function createComplaint(req: Request, res: Response, next: NextFun
         next(err);
     }
 
+}
+
+export async function updateComplaint(req: Request, res: Response, next: NextFunction) {
+
+    try {
+        const result = await complaintsService.updateComplaint(req.params['id'], req.body);
+        res.json(result);
+    } catch (err) {
+        next(err);
+    }
 }
