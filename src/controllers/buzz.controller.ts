@@ -1,8 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as buzzService from '../services/buzz.service';
-import buzzSchema from '../schemas/mongooseSchemas/buzz/buzz.schema';
 
-function retrieveFileNames(files) {
+function _retrieveFileNames(files: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[]): Array<string> {
     const filePaths = [];
     const fileData = [].concat(files);
 
@@ -17,7 +16,7 @@ export async function createBuzz(req: Request, res: Response, next: NextFunction
     // req.body['email'] = req['userProfile']['email'];
     req.body['email'] = 'a@b.c';
     if (req.files)
-        req.body['images'] = retrieveFileNames(req.files);
+        req.body['images'] = _retrieveFileNames(req.files);
 
     try {
         const result = await buzzService.createBuzz(req.body);
@@ -28,9 +27,11 @@ export async function createBuzz(req: Request, res: Response, next: NextFunction
 }
 
 export async function getBuzzes(req: Request, res: Response, next: NextFunction) {
-    const skipCount = req.query['skip'] as string;
+    const limit = req.query['limit'] as string;
+    const skip = req.query['skip'] as string;
+
     try {
-        const result = await buzzService.getBuzz(Number(skipCount));
+        const result = await buzzService.getBuzz(Number(limit), Number(skip));
         res.json(result);
     } catch (err) {
         next(err);
