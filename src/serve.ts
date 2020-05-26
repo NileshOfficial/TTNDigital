@@ -8,6 +8,7 @@ import { complaintsRouter } from './routes/complaints.routes';
 import { adminRouter } from './routes/admin.routes';
 import * as genericMidwares from './controllers/generic.midwares';
 import { dbConnectionUri } from './uris.conf';
+import * as authMidwares from './controllers/auth.midware';
 
 const app = express();
 const HTTP_PORT: number = Number(process.env['PORT']) || PORT;
@@ -16,9 +17,9 @@ app.use(express.json());
 app.use(cors());
 app.use('/Images', express.static('../buzzUploads'));
 app.use('/auth', authRouter);
-app.use('/buzz', buzzRouter);
-app.use('/complaints', complaintsRouter);
-app.use('/admin', adminRouter);
+app.use('/buzz', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, buzzRouter);
+app.use('/complaints', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, authMidwares.validateIdTokenMidware, complaintsRouter);
+app.use('/admin', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, authMidwares.validateIdTokenMidware, adminRouter);
 app.use(genericMidwares.handleWildCardRequests);
 app.use(genericMidwares.errorHandlingMidware);
 
@@ -37,7 +38,7 @@ mongoose.connection.on('error', err => {
 
 mongoose.connection.on('connected', (err, res) => {
   console.log("mongoose is connected");
-  
+
   app.listen(HTTP_PORT, () => {
     console.log(`SERVER LISTENING ON PORT: ${HTTP_PORT}`);
   });

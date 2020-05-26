@@ -4,7 +4,7 @@ import * as complaintsService from '../services/complaints.service';
 const customId = require('custom-id');
 
 function retrieveFileNames(files) {
-    
+
     const filePaths = [];
     const fileData = [].concat(files);
 
@@ -16,11 +16,11 @@ function retrieveFileNames(files) {
 }
 
 export async function getUserComplaints(req: Request, res: Response, next: NextFunction) {
-    
+
     try {
         const limit = req.query['limit'] as string;
         const skip = req.query['skip'] as string;
-        const result = await complaintsService.getUserComplaints('a@b.c', Number(limit), Number(skip));
+        const result = await complaintsService.getUserComplaints(req['userProfile']['email'], Number(limit), Number(skip));
         res.json(result);
     } catch (err) {
         next(err);
@@ -28,7 +28,7 @@ export async function getUserComplaints(req: Request, res: Response, next: NextF
 }
 
 export async function getAllComplaints(req: Request, res: Response, next: NextFunction) {
-    
+
     const skip = req.query['skip'] as string;
     delete req.query['skip'];
     const limit = req.query['limit'] as string;
@@ -45,17 +45,17 @@ export async function getAllComplaints(req: Request, res: Response, next: NextFu
 }
 
 export async function createComplaint(req: Request, res: Response, next: NextFunction) {
-    
+
     if (req.files)
         req.body['files'] = retrieveFileNames(req.files);
-    console.log()
-    // req.body['name'] = req['userProfile']['name'];
-    // req.body['email'] = req['userProfile']['email'];
-    req.body['name'] = 'N K';
-    req.body['lockedBy'] = 'N K';
-    req.body['assignedTo'] = 'N K';
-    req.body['email'] = 'x@y.z';
-    const issueId = customId({ email: "a@b.c", randomLength: 2 });
+
+    const name = req['userProfile']['name'];
+    const mail = req['userProfile']['email'];
+    req.body['name'] = name;
+    req.body['lockedBy'] = name;
+    req.body['assignedTo'] = name;
+    req.body['email'] = mail;
+    const issueId = customId({ email: mail, randomLength: 2 });
     req.body['issueId'] = issueId;
 
     try {

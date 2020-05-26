@@ -13,8 +13,8 @@ function _retrieveFileNames(files: { [fieldname: string]: Express.Multer.File[] 
 }
 
 export async function createBuzz(req: Request, res: Response, next: NextFunction) {
-    // req.body['email'] = req['userProfile']['email'];
-    req.body['email'] = 'a@b.c';
+
+    req.body['email'] = req['userProfile']['email'];
     if (req.files)
         req.body['images'] = _retrieveFileNames(req.files);
 
