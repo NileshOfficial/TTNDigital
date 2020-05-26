@@ -6,7 +6,7 @@ import { Admin as IAdmin } from '../schemas/mongooseSchemas/admin/admin.model';
 export async function isAdmin(email: string) {
     try {
         const result = await Admin.findOne({ email: email });
-        if (result._id)
+        if (result)
             return true;
         else return false;
     } catch (err) {
