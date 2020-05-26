@@ -15,7 +15,7 @@ export function retrieveAuthHeadersMidware(req: Request, res: Response, next: Ne
 
         for (let idx = 0; idx < authHeader.length; idx++) {
             let splitPieces = authHeader[idx].trim().split(' ');
-            if (splitPieces[0].trim() !== 'Bearer')
+            if (splitPieces[0].trim().toLowerCase() !== 'bearer')
                 return next(new authExceptions.InvalidAuthHeaderFormat('auth tokens should be of bearer type', 401));
             else if (!splitPieces[1])
                 return next(new authExceptions.AuthTokenAbsent('auth token missing', 401));

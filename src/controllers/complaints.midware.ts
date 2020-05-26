@@ -3,9 +3,9 @@ import { isAdmin } from '../services/admins.service';
 import { UnauthorizedAccessRequest } from '../customExceptions/auth/auth.exceptions';
 
 export async function checkAdmin(req: Request, res: Response, next: NextFunction) {
-    // req.body['email'] = req['userProfile']['email'];
+    // req.body['email'] = ;
     try {
-        const mail = decodeURIComponent('a@b.c');
+        const mail = req['userProfile']['email'];
         
         if (await isAdmin(mail))
             return next();
