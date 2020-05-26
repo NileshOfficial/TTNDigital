@@ -1,11 +1,11 @@
 import Admin from '../schemas/mongooseSchemas/admin/admin.schema';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
-import { Admin as IAdmin} from '../schemas/mongooseSchemas/admin/admin.model';
+import { Admin as IAdmin } from '../schemas/mongooseSchemas/admin/admin.model';
 
 export async function isAdmin(email: string) {
     try {
-        const result = await Admin.findOne({email: email});
+        const result = await Admin.findOne({ email: email });
         if (result._id)
             return true;
         else return false;
@@ -14,8 +14,8 @@ export async function isAdmin(email: string) {
     }
 }
 
-export async function addAdmin(adminData: IAdmin) {
-    const admin = new Admin(adminData);
+export async function addAdmin(email: string) {
+    const admin = new Admin({ email: email });
 
     try {
         await admin.save();

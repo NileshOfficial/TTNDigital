@@ -3,7 +3,7 @@ import * as adminService from '../services/admins.service';
 
 export async function addAdmin(req: Request, res: Response, next: NextFunction) {
     try {
-        const result = await adminService.addAdmin(req.body);
+        const result = await adminService.addAdmin(req['userProfile']['email']);
         res.json(result);
     } catch (err) {
         next(err);
