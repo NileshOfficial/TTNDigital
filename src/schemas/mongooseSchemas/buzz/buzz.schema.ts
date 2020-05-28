@@ -24,7 +24,6 @@ const buzzSchema = new Schema({
     },
     date: {
         type: Number,
-        default: Date.now(),
         immutable: true
     },
     email: {

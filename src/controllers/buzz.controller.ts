@@ -17,7 +17,8 @@ export async function createBuzz(req: Request, res: Response, next: NextFunction
     req.body['email'] = req['userProfile']['email'];
     if (req.files)
         req.body['images'] = _retrieveFileNames(req.files);
-
+    req.body['date'] = Date.now();
+    
     try {
         const result = await buzzService.createBuzz(req.body);
         res.json(result);
