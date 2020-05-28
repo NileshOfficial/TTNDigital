@@ -15,7 +15,7 @@ const HTTP_PORT: number = Number(process.env['PORT']) || PORT;
 
 app.use(express.json());
 app.use(cors());
-app.use('/Images', express.static('../buzzUploads'));
+app.use('/images', express.static('buzzUploads'));
 app.use('/auth', authRouter);
 app.use('/buzz', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, buzzRouter);
 app.use('/complaints', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, authMidwares.validateIdTokenMidware, complaintsRouter);
