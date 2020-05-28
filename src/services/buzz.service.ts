@@ -20,7 +20,7 @@ export async function createBuzz(buzzData: IBuzz) {
 
 export async function getBuzz(limit: number, skip: number) {
     try {
-        return await Buzz.find().limit(limit ? limit : 0).skip(skip ? skip : 0);
+        return await Buzz.find().sort({date: -1}).limit(limit ? limit : 0).skip(skip ? skip : 0);
     } catch (err) {
         console.log(err);
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
