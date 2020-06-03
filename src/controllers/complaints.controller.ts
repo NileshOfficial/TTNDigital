@@ -57,6 +57,7 @@ export async function createComplaint(req: Request, res: Response, next: NextFun
     req.body['email'] = mail;
     const issueId = customId({ email: mail, randomLength: 2 });
     req.body['issueId'] = issueId;
+    req.body['timestamp'] = Date.now();
 
     try {
         const result = await complaintsService.createComplaint(req.body);
