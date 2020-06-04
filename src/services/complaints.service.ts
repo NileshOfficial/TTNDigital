@@ -4,9 +4,9 @@ import { DataValidationFailed } from '../customExceptions/validation/validation.
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
 
-export async function getUserComplaints(email: string, limit: number, skip: number) {
+export async function getUserComplaints(query: any, limit: number, skip: number) {
     try {
-        return await Complaints.find({ email: email }).sort({ timestamp: -1 }).limit(limit ? limit : 0).skip(skip ? skip : 0);
+        return await Complaints.find(query).sort({ timestamp: -1 }).limit(limit ? limit : 0).skip(skip ? skip : 0);
     } catch (err) {
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
     }

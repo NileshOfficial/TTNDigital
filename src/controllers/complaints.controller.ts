@@ -17,10 +17,16 @@ function retrieveFileNames(files) {
 
 export async function getUserComplaints(req: Request, res: Response, next: NextFunction) {
 
+    const skip = req.query['skip'] as string;
+    delete req.query['skip'];
+    const limit = req.query['limit'] as string;
+    delete req.query['limit'];
+
+    let queryDoc = req.query['issueId'] ? { 'issueId': req.query['issueId'] } : req.query;
+    queryDoc['email'] = req['userProfile']['email'];
+
     try {
-        const limit = req.query['limit'] as string;
-        const skip = req.query['skip'] as string;
-        const result = await complaintsService.getUserComplaints(req['userProfile']['email'], Number(limit), Number(skip));
+        const result = await complaintsService.getUserComplaints(queryDoc, Number(limit), Number(skip));
         res.json(result);
     } catch (err) {
         next(err);
