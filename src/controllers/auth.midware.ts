@@ -52,8 +52,6 @@ export async function validateIdTokenMidware(req: Request, res: Response, next: 
         return next(new authExceptions.AuthTokenAbsent('auth token missing', 401));
 
     try {
-        // req['userProfile'] = (await axios.get(uris.oAuthTokenInfoUri + `?id_token=${req['retrievedHeaders']['id_token']}`))['data'];
-        // return next();
         req['userProfile'] = verify(req['retrievedHeaders']['id_token'], process.env.CLIENT_SECRET);
         return next();
     } catch (err) {

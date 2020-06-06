@@ -61,3 +61,7 @@ export async function handleRevokeAuthTokenRequest(req: Request, res: Response, 
         return next(new authExceptions.InvalidAuthToken('invalid token or it is already expired or revoked', 401, err['response']['data']));
     }
 }
+
+export async function verifyAccessTokenValidity(req: Request, res: Response, next: NextFunction) {
+    res.send({valid: true});
+}
