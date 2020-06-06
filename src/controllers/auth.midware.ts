@@ -3,7 +3,10 @@ import axios from 'axios';
 import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
+import { verify } from 'jsonwebtoken';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 export function retrieveAuthHeadersMidware(req: Request, res: Response, next: NextFunction) {
     try {
         if (!req.headers['authorization'])
@@ -49,7 +52,9 @@ export async function validateIdTokenMidware(req: Request, res: Response, next: 
         return next(new authExceptions.AuthTokenAbsent('auth token missing', 401));
 
     try {
-        req['userProfile'] = (await axios.get(uris.oAuthTokenInfoUri + `?id_token=${req['retrievedHeaders']['id_token']}`))['data'];
+        // req['userProfile'] = (await axios.get(uris.oAuthTokenInfoUri + `?id_token=${req['retrievedHeaders']['id_token']}`))['data'];
+        // return next();
+        req['userProfile'] = verify(req['retrievedHeaders']['id_token'], process.env.CLIENT_SECRET);
         return next();
     } catch (err) {
         return next(new authExceptions.InvalidAuthToken('invalid id_token', 401, err['response']['data']))
