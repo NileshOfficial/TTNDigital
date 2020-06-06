@@ -3,7 +3,8 @@ import { Buzz } from './buzz.model';
 
 const buzzSchema = new Schema({
     description: {
-        type: String
+        type: String,
+        required: true
     },
     category: {
         type: String,
