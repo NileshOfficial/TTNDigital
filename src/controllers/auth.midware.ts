@@ -40,7 +40,7 @@ export async function verifyTokenMidware(req: Request, res: Response, next: Next
         await axios.get(uris.oAuthTokenInfoUri + `?access_token=${req['retrievedHeaders']['access_token']}`);
         return next();
     } catch (err) {
-        return next(new authExceptions.InvalidAuthToken('invalid refresh token', 401, err['response']['data']));
+        return next(new authExceptions.InvalidAuthToken('invalid auth token', 401, err['response']['data']));
     }
 }
 
