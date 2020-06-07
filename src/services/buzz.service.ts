@@ -20,8 +20,7 @@ export async function createBuzz(buzzData: IBuzz) {
 
 export async function getBuzz(limit: number, skip: number, email: string) {
     try {
-        // return await Buzz.find().sort({date: -1}).limit(limit ? limit : 0).skip(skip ? skip : 0);
-        const res = await Buzz.aggregate([
+        return await Buzz.aggregate([
             {
                 $addFields: {
                     liked: { $in: [email, "$likedBy"] },
@@ -46,10 +45,7 @@ export async function getBuzz(limit: number, skip: number, email: string) {
                 $limit: limit
             }
         ]).exec();
-        console.log(res);
-        return res;
     } catch (err) {
-        console.log(err);
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
     }
 }
