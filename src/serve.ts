@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(cors());
 app.use('/images', express.static('buzzUploads'));
 app.use('/auth', authRouter);
-app.use('/buzz', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, buzzRouter);
+app.use('/buzz', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, authMidwares.validateIdTokenMidware, buzzRouter);
 app.use('/complaints', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, authMidwares.validateIdTokenMidware, complaintsRouter);
 app.use('/admin', authMidwares.retrieveAuthHeadersMidware, authMidwares.verifyTokenMidware, authMidwares.validateIdTokenMidware, adminRouter);
 app.use(genericMidwares.handleWildCardRequests);

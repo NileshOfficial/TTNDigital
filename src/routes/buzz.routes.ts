@@ -6,8 +6,8 @@ import { uploadImages } from '../controllers/multer.midware';
 export const buzzRouter = express.Router();
 
 buzzRouter.route('/')
-    .get(authMidwares.validateIdTokenMidware, buzzControllers.getBuzzes)
-    .post(authMidwares.validateIdTokenMidware, authMidwares.validateIdTokenMidware, uploadImages.array('files'), buzzControllers.createBuzz);
+    .get(buzzControllers.getBuzzes)
+    .post(uploadImages.array('files'), buzzControllers.createBuzz);
 
 buzzRouter.patch('/like/:docId', buzzControllers.updateLikes);
 buzzRouter.patch('/dislike/:docId', buzzControllers.updateDisLikes);
