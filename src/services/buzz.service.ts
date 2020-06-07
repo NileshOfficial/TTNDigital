@@ -50,19 +50,51 @@ export async function getBuzz(limit: number, skip: number, email: string) {
     }
 }
 
-export async function updateLikes(docId: string, likes: boolean, reverse: boolean = false) {
+export async function updateLikes(docId: string, email: string, reverse: boolean = false) {
     try {
-        if (likes)
+        if (reverse)
             await Buzz.findByIdAndUpdate(docId, {
                 $inc: {
-                    likes: reverse ? -1 : 1
+                    likes: -1
+                },
+                $pull: {
+                    likedBy: email
                 }
             });
         else
             await Buzz.findByIdAndUpdate(docId, {
                 $inc: {
-                    dislikes: reverse ? -1 : 1
+                    likes: 1
+                },
+                $push: {
+                    likedBy: email
+                },
+            });
+        return responses.updationSuccessful;
+    } catch (err) {
+        throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+    }
+}
+
+export async function updateDislikes(docId: string, email: string, reverse: boolean = false) {
+    try {
+        if (reverse)
+            await Buzz.findByIdAndUpdate(docId, {
+                $inc: {
+                    dislikes: -1
+                },
+                $pull: {
+                    dislikedBy: email
                 }
+            });
+        else
+            await Buzz.findByIdAndUpdate(docId, {
+                $inc: {
+                    dislikes: 1
+                },
+                $push: {
+                    dislikedBy: email
+                },
             });
         return responses.updationSuccessful;
     } catch (err) {

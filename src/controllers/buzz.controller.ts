@@ -18,7 +18,7 @@ export async function createBuzz(req: Request, res: Response, next: NextFunction
     if (req.files)
         req.body['images'] = _retrieveFileNames(req.files);
     req.body['date'] = Date.now();
-    
+
     try {
         const result = await buzzService.createBuzz(req.body);
         res.json(result);
@@ -42,8 +42,9 @@ export async function getBuzzes(req: Request, res: Response, next: NextFunction)
 }
 
 export async function updateLikes(req: Request, res: Response, next: NextFunction) {
+    const email = req['userProfile']['email'];
     try {
-        const result = await buzzService.updateLikes(req.params['docId'], true, Boolean(req.query['reverse']));
+        const result = await buzzService.updateLikes(req.params['docId'], email, Boolean(req.query['reverse']));
         res.json(result);
     } catch (err) {
         next(err);
@@ -51,8 +52,9 @@ export async function updateLikes(req: Request, res: Response, next: NextFunctio
 }
 
 export async function updateDisLikes(req: Request, res: Response, next: NextFunction) {
+    const email = req['userProfile']['email'];
     try {
-        const result = await buzzService.updateLikes(req.params['docId'], false, Boolean(req.query['reverse']));
+        const result = await buzzService.updateDislikes(req.params['docId'], email, Boolean(req.query['reverse']));
         res.json(result);
     } catch (err) {
         next(err);
