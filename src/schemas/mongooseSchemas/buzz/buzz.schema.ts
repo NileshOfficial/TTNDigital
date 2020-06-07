@@ -1,4 +1,4 @@
-import mongoose ,{ Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { Buzz } from './buzz.model';
 
 const buzzSchema = new Schema({
@@ -12,9 +12,9 @@ const buzzSchema = new Schema({
         required: true
     },
     images: {
-            type: [String],
-            default: []
-        },
+        type: [String],
+        default: []
+    },
     likes: {
         type: Number,
         default: 0
@@ -31,6 +31,14 @@ const buzzSchema = new Schema({
         type: String,
         required: true,
         immutable: true
+    },
+    likedBy: {
+        type: [String],
+        default: [],
+    },
+    dislikedBy: {
+        type: [String],
+        default: []
     }
 });
 

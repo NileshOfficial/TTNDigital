@@ -7,5 +7,7 @@ export interface Buzz extends Document {
     images?: Types.Array<string>,
     likes?: number,
     dislikes?: number,
-    date?: number
+    date?: number,
+    likedBy: Array<string>,
+    dislikedBy: Array<string>
 }
