@@ -30,9 +30,10 @@ export async function createBuzz(req: Request, res: Response, next: NextFunction
 export async function getBuzzes(req: Request, res: Response, next: NextFunction) {
     const limit = req.query['limit'] as string;
     const skip = req.query['skip'] as string;
+    const email = req['userProfile']['email'];
 
     try {
-        const result = await buzzService.getBuzz(Number(limit), Number(skip));
+        const result = await buzzService.getBuzz(Number(limit), Number(skip), email);
         res.json(result);
     } catch (err) {
         next(err);

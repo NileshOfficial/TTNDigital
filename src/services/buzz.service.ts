@@ -18,9 +18,36 @@ export async function createBuzz(buzzData: IBuzz) {
     }
 }
 
-export async function getBuzz(limit: number, skip: number) {
+export async function getBuzz(limit: number, skip: number, email: string) {
     try {
-        return await Buzz.find().sort({date: -1}).limit(limit ? limit : 0).skip(skip ? skip : 0);
+        // return await Buzz.find().sort({date: -1}).limit(limit ? limit : 0).skip(skip ? skip : 0);
+        const res = await Buzz.aggregate([
+            {
+                $addFields: {
+                    liked: { $in: [email, "$likedBy"] },
+                    disliked: { $in: [email, "$dislikedBy"] }
+                }
+            },
+            {
+                $project: {
+                    likedBy: 0,
+                    dislikedBy: 0
+                }
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            },
+            {
+                $skip: skip
+            },
+            {
+                $limit: limit
+            }
+        ]).exec();
+        console.log(res);
+        return res;
     } catch (err) {
         console.log(err);
         throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
