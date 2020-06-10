@@ -29,17 +29,13 @@ const connectOptions: ConnectionOptions = {
   useFindAndModify: false,
   useUnifiedTopology: true
 }
-mongoose.connect(dbConnectionUri, connectOptions);
-
-mongoose.connection.on('error', err => {
-  console.log(err);
-  process.exit(1);
-});
-
-mongoose.connection.on('connected', (err, res) => {
-  console.log("mongoose is connected");
-
-  app.listen(HTTP_PORT, () => {
-    console.log(`SERVER LISTENING ON PORT: ${HTTP_PORT}`);
+mongoose.connect(dbConnectionUri, connectOptions)
+  .then(() => {
+    console.log("mongoose is connected");
+    app.listen(HTTP_PORT, () => {
+      console.log(`SERVER LISTENING ON PORT: ${HTTP_PORT}`);
+    });
+  }, err => {
+    console.log(err);
+    process.exit(1);
   });
-});
