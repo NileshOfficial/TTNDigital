@@ -8,7 +8,7 @@ export function handleWildCardRequests(req: Request, res: Response, next: NextFu
 
 
 export function errorHandlingMidware(err: CustomExceptionTemplate, req: Request, res: Response, next: NextFunction) {
-    res.status(err.responseCode || 400);
+    res.status(err.responseCode || 500);
     return res.json({
         error: err.name,
         errorCode: err.code,
