@@ -11,8 +11,7 @@ const HTTP_PORT: number = Number(process.env['PORT']) || PORT;
 app.use(express.json());
 app.use(cors());
 app.use('/images', express.static('buzzUploads'));
-app.use(globalRouter)
-
+app.use(globalRouter);
 
 const connectOptions: ConnectionOptions = {
   useNewUrlParser: true,
