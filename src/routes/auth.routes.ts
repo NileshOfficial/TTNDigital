@@ -1,6 +1,6 @@
 import express from 'express';
 import * as authControllers from '../controllers/auth.controller';
-import { retrieveAuthHeadersMidware, verifyTokenMidware } from '../controllers/auth.midware';
+import { retrieveAuthHeadersMidware, verifyTokenMidware } from '../middlewares/auth.midware';
 
 export const authRouter = express.Router();
 

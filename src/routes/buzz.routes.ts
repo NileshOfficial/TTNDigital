@@ -1,7 +1,6 @@
 import express from 'express';
 import * as buzzControllers from '../controllers/buzz.controller';
-import * as authMidwares from '../controllers/auth.midware';
-import { uploadImages } from '../controllers/multer.midware';
+import { uploadImages } from '../middlewares/multer.midware';
 
 export const buzzRouter = express.Router();
 

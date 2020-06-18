@@ -3,8 +3,8 @@ import { authRouter } from '../routes/auth.routes';
 import { buzzRouter } from '../routes/buzz.routes';
 import { complaintsRouter } from '../routes/complaints.routes';
 import { adminRouter } from '../routes/admin.routes';
-import * as genericMidwares from '../controllers/generic.midwares';
-import * as authMidwares from '../controllers/auth.midware';
+import * as genericMidwares from '../middlewares/generic.midwares';
+import * as authMidwares from '../middlewares/auth.midware';
 
 export const globalRouter = Router();
 

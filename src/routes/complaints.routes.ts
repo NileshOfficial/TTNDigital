@@ -1,7 +1,7 @@
 import express from 'express';
-import { uploadAny } from '../controllers/multer.midware';
+import { uploadAny } from '../middlewares/multer.midware';
 import * as complaintControllers from '../controllers/complaints.controller';
-import { checkAdmin } from '../controllers/complaints.midware';
+import { checkAdmin } from '../middlewares/complaints.midware';
 
 export const complaintsRouter = express.Router();
 
