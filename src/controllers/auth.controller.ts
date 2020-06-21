@@ -4,6 +4,9 @@ import * as dotenv from 'dotenv';
 import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
 import { RequiredKeyAbsent } from '../customExceptions/validation/validation.exceptions';
+import { findOrAddUser } from '../services/user.service';
+import { User } from '../schemas/mongooseSchemas/user/user.model';
+import { ROLES } from '../roles.conf';
 import { decode, sign } from 'jsonwebtoken';
 
 dotenv.config();
@@ -20,9 +23,21 @@ export async function handleGetAuthTokenRequest(req: Request, res: Response, nex
     try {
         const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);
         const userProfile = decode(token.data['id_token']);
+
+        const userData: User = {
+            name: userProfile['name'],
+            email: userProfile['email'],
+            picture: userProfile['picture']
+        } as User;
+
+        const updationResponse = await findOrAddUser(userData);
+
         token.data['id_token'] = sign({
-                                        name: userProfile['name'],
-                                        email: userProfile['email']
+                                        name: updationResponse.name,
+                                        email: updationResponse.email,
+                                        picture: updationResponse.picture,
+                                        role: updationResponse.role,
+                                        role_code: ROLES[updationResponse.role],
                                     }, process.env.CLIENT_SECRET);
         return res.json(token['data']);
     } catch (err) {
