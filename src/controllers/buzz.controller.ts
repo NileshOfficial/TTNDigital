@@ -46,7 +46,7 @@ export const getBuzzes = async (req: Request, res: Response, next: NextFunction)
 export const updateLikes = async (req: Request, res: Response, next: NextFunction) => {
 	const email = req['userProfile']['email'];
 	try {
-		const result = await buzzService.updateLikes(req.params['docId'], email, Boolean(req.query['reverse']));
+		const result = await buzzService.updateLikes(req.params['id'], email, Boolean(req.query['reverse']));
 		res.json(result);
 	} catch (err) {
 		next(err);
@@ -56,12 +56,21 @@ export const updateLikes = async (req: Request, res: Response, next: NextFunctio
 export const updateDisLikes = async (req: Request, res: Response, next: NextFunction) => {
 	const email = req['userProfile']['email'];
 	try {
-		const result = await buzzService.updateDislikes(req.params['docId'], email, Boolean(req.query['reverse']));
+		const result = await buzzService.updateDislikes(req.params['id'], email, Boolean(req.query['reverse']));
 		res.json(result);
 	} catch (err) {
 		next(err);
 	}
 };
+
+export const deleteBuzz = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const result = await buzzService.deleteBuzz(req.params.id);
+		res.json(result);
+	} catch (err) {
+		next(err);
+	}
+}
 
 const multerDest = (
 	req: Request,

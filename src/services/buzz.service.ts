@@ -114,3 +114,12 @@ export async function updateDislikes(docId: string, email: string, reverse: bool
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 }
+
+export const deleteBuzz = async (docId: string) => {
+    try {
+        await Buzz.findByIdAndDelete(docId);
+        return responses.removed;
+    } catch(err) {
+        throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+    }
+}

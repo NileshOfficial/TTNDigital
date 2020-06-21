@@ -7,5 +7,7 @@ buzzRouter.route('/')
     .get(buzzControllers.getBuzzes)
     .post(buzzControllers.upload.array('files'), buzzControllers.createBuzz);
 
-buzzRouter.patch('/like/:docId', buzzControllers.updateLikes);
-buzzRouter.patch('/dislike/:docId', buzzControllers.updateDisLikes);
+buzzRouter.delete('/:id', buzzControllers.deleteBuzz);
+
+buzzRouter.patch('/like/:id', buzzControllers.updateLikes);
+buzzRouter.patch('/dislike/:id', buzzControllers.updateDisLikes);
