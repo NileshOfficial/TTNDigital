@@ -48,7 +48,6 @@ export const updatePrivileges = async (email: string, update: { role?: string; d
 		);
 		return result;
 	} catch (err) {
-		console.log(err);
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
