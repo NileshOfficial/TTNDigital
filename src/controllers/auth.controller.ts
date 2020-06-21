@@ -37,7 +37,7 @@ export async function handleGetAuthTokenRequest(req: Request, res: Response, nex
                                         email: updationResponse.email,
                                         picture: updationResponse.picture,
                                         role: updationResponse.role,
-                                        role_code: ROLES[updationResponse.role],
+                                        role_code: ROLES[updationResponse.role]
                                     }, process.env.CLIENT_SECRET);
         return res.json(token['data']);
     } catch (err) {

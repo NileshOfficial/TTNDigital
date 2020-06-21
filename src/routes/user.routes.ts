@@ -8,4 +8,5 @@ userRouter.route('/')
     .get(userServices.getUsers)
     .patch(validateIdTokenMidware, userServices.updateUserProfile);
 userRouter.delete('/:id', validateIdTokenMidware, checkPrivileges('su'), userServices.deleteUser);
+userRouter.patch('/picture', validateIdTokenMidware, userServices.upload.single('file'), userServices.changeProfilePicture);
 userRouter.patch('/role/:id/:role', validateIdTokenMidware, checkPrivileges('su'), userServices.updateUserRole);

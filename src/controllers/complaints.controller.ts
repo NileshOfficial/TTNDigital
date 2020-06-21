@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction, response } from 'express';
 import * as complaintsService from '../services/complaints.service';
+import multer from 'multer';
+import { getFilterUtil, getStorageEngine, setSizeLimit } from '../utils/multer.util';
+import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 
 const customId = require('custom-id');
 
@@ -84,3 +87,17 @@ export async function updateComplaint(req: Request, res: Response, next: NextFun
         next(err);
     }
 }
+
+const multerDest = (req: Request, files: Express.Multer.File, callback: (err: Error | null, destination: string) => void) => {
+    callback(null, [process.cwd(), UPLOAD_ROOT, UPLOAD_DESTINATION.complaint].join('/'));
+}
+
+const multerFileName = (req: Request, file: Express.Multer.File, callback: (err: Error | null, destination: string) => void) => {
+    callback(null, new Date().toISOString() + file.originalname);
+}
+
+export const upload = multer({
+    storage: getStorageEngine(multerDest, multerFileName),
+    limits: setSizeLimit(1024 * 1024 * 5),
+    fileFilter: getFilterUtil(['image/jpeg', 'image/png', 'text/plain', 'application/pdf'], 'invalid file type')
+});
