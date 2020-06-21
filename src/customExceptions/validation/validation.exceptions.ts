@@ -24,3 +24,11 @@ export class UnsupportedFileType extends CustomExceptionTemplate {
         this.stack = `${this.message}\n${new Error().stack}`;
     }
 }
+
+export class DuplicateKey extends CustomExceptionTemplate {
+    constructor(message: string, responseCode: number, payload?: object) {
+        super(message, codes.duplicateKey, responseCode, payload);
+        this.name = 'DuplicateKeyError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
