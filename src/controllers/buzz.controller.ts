@@ -3,6 +3,7 @@ import * as buzzService from '../services/buzz.service';
 import multer from 'multer';
 import { getFilterUtil, getStorageEngine, setSizeLimit } from '../utils/multer.util';
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
+import { ActionNotAcceptableError } from '../customExceptions/generic/generic.exceptions';
 
 const _retrieveFileNames = (
 	files: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[]
@@ -32,11 +33,13 @@ export const createBuzz = async (req: Request, res: Response, next: NextFunction
 
 export const getBuzzes = async (req: Request, res: Response, next: NextFunction) => {
 	const limit = req.query['limit'] as string;
+	delete req.query['limit'];
 	const skip = req.query['skip'] as string;
+	delete req.query['skip'];
 	const email = req['userProfile']['email'];
 
 	try {
-		const result = await buzzService.getBuzz(Number(limit), Number(skip), email);
+		const result = await buzzService.getBuzz(req.query, Number(limit), Number(skip), email);
 		res.json(result);
 	} catch (err) {
 		next(err);
@@ -70,7 +73,22 @@ export const deleteBuzz = async (req: Request, res: Response, next: NextFunction
 	} catch (err) {
 		next(err);
 	}
-}
+};
+
+export const updateBuzz = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		if (req.body['likes'] || req.body['dislikes'] || req.body['likedBy'] || req.body['dislikedBy'])
+			throw new ActionNotAcceptableError(
+				'keys: likes, dislikes, likedBy, dislikedBy cannot be updated directly',
+				406
+			);
+		
+			const result = await buzzService.updateBuzz(req.params.id, req.body);
+		res.json(result);
+	} catch (err) {
+		next(err);
+	}
+};
 
 const multerDest = (
 	req: Request,

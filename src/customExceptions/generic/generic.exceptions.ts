@@ -16,3 +16,11 @@ export class InternalServerError extends CustomExceptionTemplate {
         this.stack = `${this.message}\n${new Error().stack}`;
     }
 }
+
+export class ActionNotAcceptableError extends CustomExceptionTemplate {
+    constructor(message: string, responseCode: number, payload?: object) {
+        super(message, codes.notAcceptableError, responseCode, payload);
+        this.name = 'ActionNotAcceptableError';
+        this.stack = `${this.message}\n${new Error().stack}`;
+    }
+}
