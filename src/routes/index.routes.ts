@@ -43,7 +43,6 @@ globalRouter.use(
     authMidwares.retrieveAuthHeadersMidware,
     authMidwares.verifyTokenMidware,
     authMidwares.validateIdTokenMidware,
-    authMidwares.checkPrivileges("su"),
     departmentRouter
 );
 globalRouter.use(genericMidwares.handleWildCardRequests);
