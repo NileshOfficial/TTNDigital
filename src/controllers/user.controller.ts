@@ -8,6 +8,7 @@ import { getFilterUtil, getStorageEngine, setSizeLimit } from '../utils/multer.u
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 import { User } from '../schemas/mongooseSchemas/user/user.model';
 import { ROLES } from '../roles.conf';
+import { updationSuccessful } from '../response.messages';
 
 dotenv.config();
 
@@ -23,8 +24,8 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
 				name: updationResponse.name,
 				email: updationResponse.email,
 				picture: updationResponse.picture,
-                role: updationResponse.role,
-                role_code: ROLES[updationResponse.role]
+				role: updationResponse.role,
+				role_code: ROLES[updationResponse.role],
 			},
 			process.env.CLIENT_SECRET
 		);
@@ -35,22 +36,30 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
 	}
 };
 
-export const updateUserRole = async (req: Request, res: Response, next: NextFunction) => {
+export const updatePrivileges = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const updationResponse = await userServices.updateUserRole(req.params.id, req.params.role);
+		const update = {
+			...(req.body.role && { role: req.body.role }),
+			...(req.body.department && { department: req.body.department }),
+		};
 
-		const id_token = sign(
-			{
-				name: updationResponse.name,
-				email: updationResponse.email,
-				picture: updationResponse.picture,
-                role: updationResponse.role,
-                role_code: ROLES[updationResponse.role]
-			},
-			process.env.CLIENT_SECRET
-		);
+		const updationResponse = await userServices.updatePrivileges(req['userProfile'].email, update);
 
-		res.json({ id_token });
+		let response: any = updationSuccessful;
+		if (update.role) {
+			const id_token = sign(
+				{
+					name: updationResponse.name,
+					email: updationResponse.email,
+					picture: updationResponse.picture,
+					role: updationResponse.role,
+					role_code: ROLES[updationResponse.role],
+				},
+				process.env.CLIENT_SECRET
+			);
+			response = { id_token };
+		}
+		res.json(response);
 	} catch (err) {
 		next(err);
 	}
@@ -58,7 +67,7 @@ export const updateUserRole = async (req: Request, res: Response, next: NextFunc
 
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const result = await userServices.deleteUser(req.params.id);
+		const result = await userServices.deleteUser(req['userProfile'].email);
 		res.json(result);
 	} catch (err) {
 		next(err);
@@ -84,8 +93,8 @@ export const changeProfilePicture = async (req: Request, res: Response, next: Ne
 		if (req.file) {
 			const updationResponse = await userServices.updateUserProfile(req['userProfile'].email, {
 				picture: req.file.filename,
-            } as User);
-            
+			} as User);
+
 			const id_token = sign(
 				{
 					name: updationResponse.name,

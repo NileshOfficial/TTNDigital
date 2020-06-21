@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 import { User } from "./user.model";
 import { ROLES } from '../../../roles.conf';
 
@@ -43,7 +43,7 @@ const userSchema = new Schema({
     },
 
     department: {
-        type: String,
+        type: Types.ObjectId,
     },
 });
 
