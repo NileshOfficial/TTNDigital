@@ -10,6 +10,7 @@ import { User } from '../schemas/mongooseSchemas/user/user.model';
 import { ROLES } from '../roles.conf';
 import { updationSuccessful } from '../response.messages';
 import { v4 as uuidv4 } from 'uuid';
+import { DataValidationFailed } from '../customExceptions/validation/validation.exceptions';
 
 dotenv.config();
 
@@ -44,7 +45,10 @@ export const updatePrivileges = async (req: Request, res: Response, next: NextFu
 			...(req.body.department && { department: req.body.department }),
 		};
 
-		const updationResponse = await userServices.updatePrivileges(req['userProfile'].email, update);
+		if(Object.keys(update).length === 0)
+			throw new DataValidationFailed('provide atleast one detail to update', 500);
+
+		const updationResponse = await userServices.updatePrivileges(req.params.email, update);
 
 		let response: any = updationSuccessful;
 		if (update.role) {
@@ -68,7 +72,7 @@ export const updatePrivileges = async (req: Request, res: Response, next: NextFu
 
 export const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const result = await userServices.deleteUser(req['userProfile'].email);
+		const result = await userServices.deleteUser(req.params.email);
 		res.json(result);
 	} catch (err) {
 		next(err);

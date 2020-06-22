@@ -6,7 +6,7 @@ export const userRouter = express.Router();
 
 userRouter.route('/')
     .get(userServices.getUsers)
-    .patch(validateIdTokenMidware, userServices.updateUserProfile)
-    .delete(validateIdTokenMidware, checkPrivileges('su'), userServices.deleteUser);
+    .patch(validateIdTokenMidware, userServices.updateUserProfile);
+userRouter.delete('/:email', validateIdTokenMidware, checkPrivileges('su'), userServices.deleteUser);
 userRouter.patch('/picture', validateIdTokenMidware, userServices.upload.single('file'), userServices.changeProfilePicture);
-userRouter.patch('/privileges', validateIdTokenMidware, checkPrivileges('su'), userServices.updatePrivileges);
+userRouter.patch('/privileges/:email', validateIdTokenMidware, checkPrivileges('su'), userServices.updatePrivileges);
