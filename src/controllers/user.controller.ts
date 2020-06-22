@@ -23,10 +23,7 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
 
 		const id_token = sign(
 			{
-				name: updationResponse.name,
-				email: updationResponse.email,
-				picture: updationResponse.picture,
-				role: updationResponse.role,
+				...updationResponse,
 				role_code: ROLES[updationResponse.role],
 			},
 			process.env.CLIENT_SECRET
@@ -45,7 +42,7 @@ export const updatePrivileges = async (req: Request, res: Response, next: NextFu
 			...(req.body.department && { department: req.body.department }),
 		};
 
-		if(Object.keys(update).length === 0)
+		if (Object.keys(update).length === 0)
 			throw new DataValidationFailed('provide atleast one detail to update', 500);
 
 		const updationResponse = await userServices.updatePrivileges(req.params.email, update);
@@ -54,10 +51,7 @@ export const updatePrivileges = async (req: Request, res: Response, next: NextFu
 		if (update.role) {
 			const id_token = sign(
 				{
-					name: updationResponse.name,
-					email: updationResponse.email,
-					picture: updationResponse.picture,
-					role: updationResponse.role,
+					...updationResponse,
 					role_code: ROLES[updationResponse.role],
 				},
 				process.env.CLIENT_SECRET
@@ -102,10 +96,8 @@ export const changeProfilePicture = async (req: Request, res: Response, next: Ne
 
 			const id_token = sign(
 				{
-					name: updationResponse.name,
-					email: updationResponse.email,
-					picture: updationResponse.picture,
-					role: updationResponse.role,
+					...updationResponse,
+					role_code: ROLES[updationResponse.role],
 				},
 				process.env.CLIENT_SECRET
 			);

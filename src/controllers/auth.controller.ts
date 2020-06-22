@@ -59,10 +59,7 @@ export async function handleGetAuthTokenRequest(req: Request, res: Response, nex
 
 		token.data['id_token'] = sign(
 			{
-				name: updationResponse.name,
-				email: updationResponse.email,
-				picture: updationResponse.picture,
-				role: updationResponse.role,
+				...updationResponse,
 				role_code: ROLES[updationResponse.role],
 			},
 			process.env.CLIENT_SECRET
