@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { Complaint } from './complaints.model';
+import { validateDepartment } from '../../../utils/mongoose.validators';
 
 const complaintSchema = new Schema({
     issueId: {
@@ -8,25 +9,17 @@ const complaintSchema = new Schema({
         immutable: true
     },
     department: {
-        type: String,
-        enum: ['Admin', 'IT', 'Infra', 'HR'],
+        type: mongoose.Types.ObjectId,
         required: true,
-        immutable: true
+        validate: {
+            validator: validateDepartment,
+            message: 'invalid department value'
+        }
     },
     title: {
         type: String,
         enum: ['Hardware', 'Infrastructure', 'Others'],
         required: true
-    },
-    name: {
-        type: String,
-        required: true,
-        immutable: true
-    },
-    lockedBy: {
-        type: String,
-        required: true,
-        immutable: true
     },
     assignedTo: {
         type: String,

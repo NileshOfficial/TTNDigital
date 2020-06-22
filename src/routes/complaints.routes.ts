@@ -5,8 +5,7 @@ import { checkAdmin } from '../middlewares/complaints.midware';
 export const complaintsRouter = express.Router();
 
 complaintsRouter.route('/')
-    .get(complaintControllers.getUserComplaints)
+    .get(complaintControllers.getComplaints)
     .post(complaintControllers.upload.array('files'), complaintControllers.createComplaint);
 
-complaintsRouter.get('/all', checkAdmin, complaintControllers.getAllComplaints);
 complaintsRouter.patch('/:id', checkAdmin, complaintControllers.updateComplaint);
