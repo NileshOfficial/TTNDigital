@@ -14,7 +14,7 @@ export const createBuzz = async (buzzData: IBuzz) => {
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
-}
+};
 
 export const getBuzz = async (query: any, limit: number, skip: number, email: string) => {
 	const pipeline: Array<any> = [
@@ -22,36 +22,45 @@ export const getBuzz = async (query: any, limit: number, skip: number, email: st
 		{
 			$addFields: {
 				liked: { $in: [email, '$likedBy'] },
-				disliked: { $in: [email, '$dislikedBy'] },
-			},
+				disliked: { $in: [email, '$dislikedBy'] }
+			}
 		},
 		{
 			$lookup: {
 				from: 'users',
 				localField: 'email',
 				foreignField: 'email',
-				as: 'user',
-			},
+				as: 'user'
+			}
+		},
+		{
+			$set: {
+				user: { $arrayElemAt: ['$user', 0] }
+			}
 		},
 		{
 			$project: {
+				__v: 0,
 				likedBy: 0,
 				dislikedBy: 0,
 				user: {
-					email: 0,
+					_id: 0,
+					__v: 0,
+					dob: 0,
+					contact: 0,
 					role: 0,
-					department: 0,
-				},
-			},
+					department: 0
+				}
+			}
 		},
 		{
 			$sort: {
-				date: -1,
-			},
+				date: -1
+			}
 		},
 		{
-			$skip: skip ? skip : 0,
-		},
+			$skip: skip ? skip : 0
+		}
 	];
 
 	if (limit) pipeline.push({ $limit: limit });
@@ -61,59 +70,59 @@ export const getBuzz = async (query: any, limit: number, skip: number, email: st
 	} catch (err) {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
-}
+};
 
 export const updateLikes = async (id: string, email: string, reverse: boolean = false) => {
 	try {
 		if (reverse)
 			await Buzz.findByIdAndUpdate(id, {
 				$inc: {
-					likes: -1,
+					likes: -1
 				},
 				$pull: {
-					likedBy: email,
-				},
+					likedBy: email
+				}
 			});
 		else
 			await Buzz.findByIdAndUpdate(id, {
 				$inc: {
-					likes: 1,
+					likes: 1
 				},
 				$push: {
-					likedBy: email,
-				},
+					likedBy: email
+				}
 			});
 		return responses.updationSuccessful;
 	} catch (err) {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
-}
+};
 
 export const updateDislikes = async (id: string, email: string, reverse: boolean = false) => {
 	try {
 		if (reverse)
 			await Buzz.findByIdAndUpdate(id, {
 				$inc: {
-					dislikes: -1,
+					dislikes: -1
 				},
 				$pull: {
-					dislikedBy: email,
-				},
+					dislikedBy: email
+				}
 			});
 		else
 			await Buzz.findByIdAndUpdate(id, {
 				$inc: {
-					dislikes: 1,
+					dislikes: 1
 				},
 				$push: {
-					dislikedBy: email,
-				},
+					dislikedBy: email
+				}
 			});
 		return responses.updationSuccessful;
 	} catch (err) {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
-}
+};
 
 export const deleteBuzz = async (id: string) => {
 	try {
