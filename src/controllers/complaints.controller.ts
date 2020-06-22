@@ -4,10 +4,11 @@ import multer from 'multer';
 import { getFilterUtil, getStorageEngine, setSizeLimit } from '../utils/multer.util';
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 import { v4 as uuidv4 } from 'uuid';
+import { ROLES } from '../roles.conf';
 
 const customId = require('custom-id');
 
-function retrieveFileNames(files) {
+const retrieveFileNames = (files) => {
 
     const filePaths = [];
     const fileData = [].concat(files);
@@ -19,26 +20,7 @@ function retrieveFileNames(files) {
     return filePaths;
 }
 
-export async function getUserComplaints(req: Request, res: Response, next: NextFunction) {
-
-    const skip = req.query['skip'] as string;
-    delete req.query['skip'];
-    const limit = req.query['limit'] as string;
-    delete req.query['limit'];
-
-    let queryDoc = req.query['issueId'] ? { 'issueId': req.query['issueId'] } : req.query;
-    queryDoc['email'] = req['userProfile']['email'];
-
-    try {
-        const result = await complaintsService.getUserComplaints(queryDoc, Number(limit), Number(skip));
-        res.json(result);
-    } catch (err) {
-        next(err);
-    }
-}
-
-export async function getAllComplaints(req: Request, res: Response, next: NextFunction) {
-
+export const getComplaints = async (req: Request, res: Response, next: NextFunction) => {
     const skip = req.query['skip'] as string;
     delete req.query['skip'];
     const limit = req.query['limit'] as string;
@@ -46,15 +28,20 @@ export async function getAllComplaints(req: Request, res: Response, next: NextFu
 
     let queryDoc = req.query['issueId'] ? { 'issueId': req.query['issueId'] } : req.query;
 
+    if(req['userProfile'].role_code === ROLES.user)
+        queryDoc['email'] = req['userProfile']['email'];
+    else if(req['userProfile'].role_code === ROLES.admin)
+        queryDoc['assignedTo'] = req['userProfile']['email'];
+
     try {
-        const result = await complaintsService.getAllComplaints(queryDoc, Number(limit), Number(skip));
+        const result = await complaintsService.getComplaints(queryDoc, Number(limit), Number(skip));
         res.json(result);
     } catch (err) {
         next(err);
     }
 }
 
-export async function createComplaint(req: Request, res: Response, next: NextFunction) {
+export const createComplaint = async (req: Request, res: Response, next: NextFunction) => {
 
     if (req.files)
         req.body['files'] = retrieveFileNames(req.files);
@@ -79,7 +66,7 @@ export async function createComplaint(req: Request, res: Response, next: NextFun
 
 }
 
-export async function updateComplaint(req: Request, res: Response, next: NextFunction) {
+export const updateComplaint = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
         const result = await complaintsService.updateComplaint(req.params['id'], req.body);

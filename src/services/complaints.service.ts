@@ -4,45 +4,104 @@ import { DataValidationFailed } from '../customExceptions/validation/validation.
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
 
-export async function getUserComplaints(query: any, limit: number, skip: number) {
-    try {
-        return await Complaints.find(query).sort({ timestamp: -1 }).limit(limit ? limit : 0).skip(skip ? skip : 0);
-    } catch (err) {
-        throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
-    }
-}
+export const getComplaints = async (query: any, limit: number, skip: number) => {
+	const pipeline: Array<any> = [
+		{ $match: query },
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'email',
+				foreignField: 'email',
+				as: 'lockedBy'
+			}
+		},
+		{
+			$lookup: {
+				from: 'users',
+				localField: 'assignedTo',
+				foreignField: 'email',
+				as: 'assignedTo'
+			}
+		},
+		{
+			$lookup: {
+				from: 'departments',
+				localField: 'department',
+				foreignField: '_id',
+				as: 'department'
+			}
+        },
+        {
+            $set: {
+                lockedBy: { $arrayElemAt: [ '$lockedBy', 0 ] },
+                assignedTo: { $arrayElemAt: [ '$assignedTo', 0 ] },
+                department: { $arrayElemAt: [ '$department', 0 ] }
+            }
+        },
+		{
+			$project: {
+				__v: 0,
+				email: 0,
+				lockedBy: {
+					_id: 0,
+					__v: 0,
+					picture: 0,
+					dob: 0,
+					contact: 0,
+					role: 0,
+					department: 0
+				},
+				assignedTo: {
+					_id: 0,
+					__v: 0,
+					picture: 0,
+					dob: 0,
+					contact: 0,
+					role: 0,
+					department: 0
+				},
+				department: {
+					__v: 0
+                }
+			}
+		},
+		{
+			$sort: { timestamp: -1 }
+		},
+		{
+			$skip: skip ? skip : 0
+		}
+	];
 
-export async function getAllComplaints(query: object, limit: number, skip: number) {
-    try {
-        return await Complaints.find(query).sort({ timestamp: -1 }).limit(limit ? limit : 0).skip(skip ? skip : 0);
-    } catch (err) {
-        throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
-    }
-}
+	if (limit) pipeline.push({ $limit: limit });
 
-export async function createComplaint(complaintData: IComplaint) {
-    const complaint = new Complaints(complaintData);
+	try {
+		return await Complaints.aggregate(pipeline).exec();
+	} catch (err) {
+		console.log(err);
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500, err);
+	}
+};
 
-    try {
-        await complaint.save();
-        return responses.insertionSuccessful;
-    } catch (err) {
-        if (err.name === 'ValidationError')
-            throw new DataValidationFailed(err.message, 400);
-        else
-            throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
-    }
-}
+export const createComplaint = async (complaintData: IComplaint) => {
+	const complaint = new Complaints(complaintData);
 
-export async function updateComplaint(id, complaintData: IComplaint) {
-    try {
-        await Complaints.findByIdAndUpdate(id, { $set: complaintData }, { runValidators: true }).exec();
-        return responses.updationSuccessful;
-    } catch (err) {
-        console.log(err, err.message);
-        if (err.name === 'ValidationError')
-            throw new DataValidationFailed(err.message, 400);
-        else
-            throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
-    }
-}
+	try {
+		await complaint.save();
+		return responses.insertionSuccessful;
+	} catch (err) {
+		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
+		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
+
+export const updateComplaint = async (id, complaintData: IComplaint) => {
+	try {
+		await Complaints.findByIdAndUpdate(id, { $set: complaintData }, { runValidators: true }).exec();
+		return responses.updationSuccessful;
+	} catch (err) {
+		console.log(err, err.message);
+		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
+		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
