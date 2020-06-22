@@ -16,7 +16,7 @@ export const findOrAddUser = async (userData: IUser) => {
 				setDefaultsOnInsert: true,
 			}
 		);
-		return result;
+		return result.toJSON();
 	} catch (err) {
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
@@ -30,7 +30,7 @@ export const updateUserProfile = async (email: string, update: IUser) => {
 			{ $set: update },
 			{ runValidators: true, new: true }
 		);
-		return result;
+		return result.toJSON();
 	} catch (err) {
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
@@ -46,7 +46,7 @@ export const updatePrivileges = async (email: string, update: { role?: string; d
 			},
 			{ runValidators: true, new: true }
 		);
-		return result;
+		return result.toJSON();
 	} catch (err) {
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);

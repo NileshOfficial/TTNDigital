@@ -19,15 +19,12 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
 		delete req.body.picture;
 		if (req.body.email || req.body.role)
 			throw new UnauthorizedAccessRequest('Insufficient priviledges to update email or role fields', 403);
+		
 		const updationResponse = await userServices.updateUserProfile(req['userProfile'].email, req.body);
-
-		const id_token = sign(
-			{
-				...updationResponse,
-				role_code: ROLES[updationResponse.role],
-			},
-			process.env.CLIENT_SECRET
-		);
+		delete updationResponse.__v;
+		updationResponse['role_code'] = ROLES[updationResponse.role];
+		
+		const id_token = sign(updationResponse, process.env.CLIENT_SECRET);
 
 		res.json({ id_token });
 	} catch (err) {
@@ -48,14 +45,13 @@ export const updatePrivileges = async (req: Request, res: Response, next: NextFu
 		const updationResponse = await userServices.updatePrivileges(req.params.email, update);
 
 		let response: any = updationSuccessful;
+
 		if (update.role) {
-			const id_token = sign(
-				{
-					...updationResponse,
-					role_code: ROLES[updationResponse.role],
-				},
-				process.env.CLIENT_SECRET
-			);
+			delete updationResponse.__v;
+			updationResponse['role_code'] = ROLES[updationResponse.role];
+
+			const id_token = sign(updationResponse, process.env.CLIENT_SECRET);
+
 			response = { id_token };
 		}
 		res.json(response);
@@ -94,13 +90,10 @@ export const changeProfilePicture = async (req: Request, res: Response, next: Ne
 				picture: req.file.filename,
 			} as User);
 
-			const id_token = sign(
-				{
-					...updationResponse,
-					role_code: ROLES[updationResponse.role],
-				},
-				process.env.CLIENT_SECRET
-			);
+			delete updationResponse.__v;
+			updationResponse['role_code'] = ROLES[updationResponse.role];
+			
+			const id_token = sign(updationResponse, process.env.CLIENT_SECRET);
 
 			res.json({ id_token });
 		}

@@ -56,16 +56,14 @@ export async function handleGetAuthTokenRequest(req: Request, res: Response, nex
 		} as User;
 
 		const updationResponse = await findOrAddUser(userData);
+		delete updationResponse.__v;
 
-		token.data['id_token'] = sign(
-			{
-				...updationResponse,
-				role_code: ROLES[updationResponse.role],
-			},
-			process.env.CLIENT_SECRET
-		);
+		updationResponse['role_code'] = ROLES[updationResponse.role];
+		token.data['id_token'] = sign(updationResponse, process.env.CLIENT_SECRET);
+
 		return res.json(token['data']);
 	} catch (err) {
+		console.log(err);
 		return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401, err['response']['data']));
 	}
 }
