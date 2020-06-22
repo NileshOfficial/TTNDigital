@@ -3,6 +3,7 @@ import * as complaintsService from '../services/complaints.service';
 import multer from 'multer';
 import { getFilterUtil, getStorageEngine, setSizeLimit } from '../utils/multer.util';
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
+import { v4 as uuidv4 } from 'uuid';
 
 const customId = require('custom-id');
 
@@ -93,7 +94,7 @@ const multerDest = (req: Request, files: Express.Multer.File, callback: (err: Er
 }
 
 const multerFileName = (req: Request, file: Express.Multer.File, callback: (err: Error | null, destination: string) => void) => {
-    callback(null, new Date().toISOString() + file.originalname);
+    callback(null, uuidv4() + file.originalname);
 }
 
 export const upload = multer({

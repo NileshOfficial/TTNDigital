@@ -9,6 +9,7 @@ import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 import { User } from '../schemas/mongooseSchemas/user/user.model';
 import { ROLES } from '../roles.conf';
 import { updationSuccessful } from '../response.messages';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -125,7 +126,7 @@ const multerFileName = (
 	file: Express.Multer.File,
 	callback: (err: Error | null, destination: string) => void
 ) => {
-	callback(null, new Date().toISOString() + file.originalname);
+	callback(null, uuidv4() + file.originalname);
 };
 
 export const upload = multer({
