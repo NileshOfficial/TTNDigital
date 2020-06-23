@@ -18,7 +18,8 @@ const complaintSchema = new Schema({
     },
     title: {
         type: String,
-        enum: ['Hardware', 'Infrastructure', 'Others'],
+        enum: ['hardware', 'infrastructure', 'others'],
+        default: 'hardware',
         required: true
     },
     assignedTo: {
@@ -39,9 +40,9 @@ const complaintSchema = new Schema({
     }],
     status: {
         type: String,
-        enum: ['Open', 'Resolved', 'In Progress'],
+        enum: ['open', 'resolved', 'in progress'],
         required: true,
-        default: 'Open'
+        default: 'open'
     },
     estimatedTime: {
         value: {

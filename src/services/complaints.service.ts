@@ -1,4 +1,5 @@
 import Complaints from '../schemas/mongooseSchemas/complaints/complaints.schema';
+import User from '../schemas/mongooseSchemas/user/user.schema';
 import { Complaint as IComplaint } from '../schemas/mongooseSchemas/complaints/complaints.model';
 import { DataValidationFailed } from '../customExceptions/validation/validation.exceptions';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
@@ -30,14 +31,14 @@ export const getComplaints = async (query: any, limit: number, skip: number) => 
 				foreignField: '_id',
 				as: 'department'
 			}
-        },
-        {
-            $set: {
-                lockedBy: { $arrayElemAt: [ '$lockedBy', 0 ] },
-                assignedTo: { $arrayElemAt: [ '$assignedTo', 0 ] },
-                department: { $arrayElemAt: [ '$department', 0 ] }
-            }
-        },
+		},
+		{
+			$set: {
+				lockedBy: { $arrayElemAt: ['$lockedBy', 0] },
+				assignedTo: { $arrayElemAt: ['$assignedTo', 0] },
+				department: { $arrayElemAt: ['$department', 0] }
+			}
+		},
 		{
 			$project: {
 				__v: 0,
@@ -62,7 +63,7 @@ export const getComplaints = async (query: any, limit: number, skip: number) => 
 				},
 				department: {
 					__v: 0
-                }
+				}
 			}
 		},
 		{
@@ -95,7 +96,7 @@ export const createComplaint = async (complaintData: IComplaint) => {
 	}
 };
 
-export const updateComplaint = async (id, complaintData: IComplaint) => {
+export const updateComplaint = async (id: string, complaintData: IComplaint) => {
 	try {
 		await Complaints.findByIdAndUpdate(id, { $set: complaintData }, { runValidators: true }).exec();
 		return responses.updationSuccessful;
@@ -103,5 +104,34 @@ export const updateComplaint = async (id, complaintData: IComplaint) => {
 		console.log(err, err.message);
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
+
+const _randomFromInterval = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
+
+const _ensureAdmin = (admins: Array<any>): string => {
+	while(1) {
+		const idx = _randomFromInterval(0, admins.length - 1);
+		if (admins[idx].role !== 'su')
+			return admins[idx].email;
+	}
+};
+
+export const getAdmin = async (department: string, email: string) => {
+	try {
+		const departmentAdmins = await User.find({
+			department,
+			email: { $ne: email },
+			role: {
+				$in: ['admin', 'su']
+			}
+		}).lean();
+
+		if (departmentAdmins.length === 1) {
+			return departmentAdmins[0].email;
+		}
+		return _ensureAdmin(departmentAdmins);
+	} catch (err) {
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 };
