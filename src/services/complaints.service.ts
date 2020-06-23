@@ -110,21 +110,20 @@ export const updateComplaint = async (id: string, complaintData: IComplaint) => 
 const _randomFromInterval = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 
 const _ensureAdmin = (admins: Array<any>): string => {
-	while(1) {
+	while (1) {
 		const idx = _randomFromInterval(0, admins.length - 1);
-		if (admins[idx].role !== 'su')
-			return admins[idx].email;
+		if (admins[idx].role !== 'su') return admins[idx].email;
 	}
 };
 
 export const getAdmin = async (department: string, email: string) => {
 	try {
 		const departmentAdmins = await User.find({
-			department,
+			$or: [
+				{ department, role: 'admin' },
+				{ role: 'su' }
+			],
 			email: { $ne: email },
-			role: {
-				$in: ['admin', 'su']
-			}
 		}).lean();
 
 		if (departmentAdmins.length === 1) {
