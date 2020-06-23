@@ -1,8 +1,27 @@
 import User from '../schemas/mongooseSchemas/user/user.schema';
 import { User as IUser } from '../schemas/mongooseSchemas/user/user.model';
-import { DataValidationFailed } from '../customExceptions/validation/validation.exceptions';
+import { DataValidationFailed, DuplicateKey } from '../customExceptions/validation/validation.exceptions';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
+
+export const createUser = async (userData: IUser) => {
+	try {
+		const user = new User(userData);
+		return (await user.save()).toJSON();
+	} catch (err) {
+		if (err.code === 11000) throw new DuplicateKey('user already exists', 403);
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
+
+export const getUserByEmail = async (email: string) => {
+	try {
+		const user = await User.findOne({ email });
+		return user ? user.toJSON() : user;
+	} catch (err) {
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
 
 export const findOrAddUser = async (userData: IUser) => {
 	try {
@@ -13,7 +32,7 @@ export const findOrAddUser = async (userData: IUser) => {
 				upsert: true,
 				new: true,
 				runValidators: true,
-				setDefaultsOnInsert: true,
+				setDefaultsOnInsert: true
 			}
 		);
 		return result.toJSON();
@@ -38,11 +57,11 @@ export const updateUserProfile = async (email: string, update: IUser) => {
 };
 
 export const updatePrivileges = async (email: string, update: { role?: string; department?: string }) => {
-    try {
+	try {
 		const result = await User.findOneAndUpdate(
 			{ email },
 			{
-				$set: update,
+				$set: update
 			},
 			{ runValidators: true, new: true }
 		);

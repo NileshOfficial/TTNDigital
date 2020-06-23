@@ -1,14 +1,14 @@
-import { Request, Response, NextFunction, ErrorRequestHandler, response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import axios from 'axios';
 import * as dotenv from 'dotenv';
 import * as uris from '../uris.conf';
 import * as authExceptions from '../customExceptions/auth/auth.exceptions';
 import { RequiredKeyAbsent } from '../customExceptions/validation/validation.exceptions';
-import { findOrAddUser } from '../services/user.service';
+import { createUser, getUserByEmail } from '../services/user.service';
 import { User } from '../schemas/mongooseSchemas/user/user.model';
 import { ROLES } from '../roles.conf';
 import { decode, sign } from 'jsonwebtoken';
-import { createWriteStream } from 'fs';
+import { createWriteStream, unlink } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
@@ -16,57 +16,84 @@ import { internalServerErrorRepsonse } from '../response.messages';
 
 dotenv.config();
 
-// const _download = async (path: string) => {
-// 	const pathSegments = path.split('/');
-// 	const filename = uuidv4() + pathSegments[pathSegments.length - 1];
-// 	const fileStream = createWriteStream([process.cwd(), UPLOAD_ROOT, UPLOAD_DESTINATION.user, filename].join('/'));
-// 	try {
-//         const fileData = await axios.get(path);
-//         console.log(fileData);
-// 		fileStream.write(fileData.data, err => {
-//             if(err) {
-//                 throw new InternalServerError(internalServerErrorRepsonse, 500);
-//             }
-//         });
-//         return filename;
-// 	} catch (err) {
-// 		throw new InternalServerError(internalServerErrorRepsonse, 500);
-// 	}
-// };
-
-export async function handleGetAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
-	const tokenRequestConfig = {
-		client_id: process.env.CLIENT_ID,
-		client_secret: process.env.CLIENT_SECRET,
-		redirect_uri: 'http://localhost:4200/auth',
-		grant_type: 'authorization_code',
-		code: decodeURIComponent(req.params['code']),
-	};
-
+const _download = async (path: string) => {
+	const pathSegments = path.split('/');
+	const filename = uuidv4() + pathSegments[pathSegments.length - 1];
+	const filepath = [process.cwd(), UPLOAD_ROOT, UPLOAD_DESTINATION.user, filename].join('/');
+	const fileStream = createWriteStream(filepath);
 	try {
-		const token = await axios.post(uris.oAuthTokenUri, tokenRequestConfig);
+		const fileData = await axios.request({
+			method: 'GET',
+			url: path,
+			responseType: 'arraybuffer'
+		});
+		fileStream.write(Buffer.from(fileData.data, 'binary'), 'binary', (err) => {
+			if (err) {
+				throw new InternalServerError(internalServerErrorRepsonse, 500);
+			}
+		});
+		return { filename, filepath };
+	} catch (err) {
+		throw new InternalServerError(internalServerErrorRepsonse, 500);
+	}
+};
+
+const _getTokenRequestConfig = (code: string) => ({
+	client_id: process.env.CLIENT_ID,
+	client_secret: process.env.CLIENT_SECRET,
+	redirect_uri: 'http://localhost:4200/auth',
+	grant_type: 'authorization_code',
+	code: decodeURIComponent(code)
+});
+
+export const signup = async (req: Request, res: Response, next: NextFunction) => {
+	let fileData: { filename: string; filepath: string } = null;
+	try {
+		const token = await axios.post(uris.oAuthTokenUri, _getTokenRequestConfig(req.params['code']));
 		const userProfile = decode(token.data['id_token']);
 
-		// const filename = await _download(userProfile['picture']);
+		fileData = await _download(userProfile['picture']);
 
 		const userData: User = {
 			name: userProfile['name'],
 			email: userProfile['email'],
-			picture: userProfile['picture'],
+			picture: fileData.filename
 		} as User;
 
-		const updationResponse = await findOrAddUser(userData);
-		delete updationResponse.__v;
+		const newUser = await createUser(userData);
+		delete newUser.__v;
 
-		updationResponse['role_code'] = ROLES[updationResponse.role];
-		token.data['id_token'] = sign(updationResponse, process.env.CLIENT_SECRET);
+		newUser['role_code'] = ROLES[newUser.role];
+		token.data['id_token'] = sign(newUser, process.env.CLIENT_SECRET);
 
 		return res.json(token['data']);
 	} catch (err) {
-		console.log(err);
-		return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401, err['response']['data']));
+		unlink(fileData.filepath, () => {});
+		if (err.code === 'DUPLICATE_KEY') return next(err);
+		return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401));
 	}
-}
+};
+
+export const signin = async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const token = await axios.post(uris.oAuthTokenUri, _getTokenRequestConfig(req.params['code']));
+		const userProfile = decode(token.data['id_token']);
+		const user = await getUserByEmail(userProfile['email']);
+		if (!user) {
+			throw new authExceptions.UnauthorizedAccessRequest('user does not exist', 401);
+		}
+
+		delete user.__v;
+
+		user['role_code'] = ROLES[user.role];
+		token.data['id_token'] = sign(user, process.env.CLIENT_SECRET);
+
+		return res.json(token['data']);
+	} catch (err) {
+		if (err.code === 'UNAUTHORIZED_ACCESS_REQUEST') return next(err);
+		return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401));
+	}
+};
 
 export async function handleRefreshAuthTokenRequest(req: Request, res: Response, next: NextFunction) {
 	if (!req.body || !req.body['refreshToken']) return next(new RequiredKeyAbsent('refresh token not provided', 400));
@@ -75,7 +102,7 @@ export async function handleRefreshAuthTokenRequest(req: Request, res: Response,
 		grant_type: 'refresh_token',
 		refresh_token: req.body['refreshToken'],
 		client_id: process.env.CLIENT_ID,
-		client_secret: process.env.CLIENT_SECRET,
+		client_secret: process.env.CLIENT_SECRET
 	};
 
 	try {
