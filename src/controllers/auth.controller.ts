@@ -68,7 +68,8 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
 
 		return res.json(token['data']);
 	} catch (err) {
-		unlink(fileData.filepath, () => {});
+		if(fileData)
+			unlink(fileData.filepath, () => {});
 		if (err.code === 'DUPLICATE_KEY') return next(err);
 		return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401));
 	}
