@@ -19,7 +19,6 @@ const complaintSchema = new Schema({
     title: {
         type: String,
         enum: ['hardware', 'infrastructure', 'others'],
-        default: 'hardware',
         required: true
     },
     assignedTo: {
