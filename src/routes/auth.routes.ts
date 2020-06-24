@@ -4,7 +4,8 @@ import { retrieveAuthHeadersMidware, verifyTokenMidware } from '../middlewares/a
 
 export const authRouter = express.Router();
 
-authRouter.get('/login/:code', authControllers.handleGetAuthTokenRequest);
+authRouter.get('/signup/:code', authControllers.signup);
+authRouter.get('/signin/:code', authControllers.signin);
 authRouter.post('/refreshAuthToken', authControllers.handleRefreshAuthTokenRequest);
 authRouter.post('/logout', authControllers.handleRevokeAuthTokenRequest);
 authRouter.get('/validate', retrieveAuthHeadersMidware, verifyTokenMidware, authControllers.verifyAccessTokenValidity);
