@@ -5,6 +5,7 @@ import { getFilterUtil, getStorageEngine, setSizeLimit } from '../utils/multer.u
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 import { ActionNotAcceptableError } from '../customExceptions/generic/generic.exceptions';
 import { v4 as uuidv4 } from 'uuid';
+import { UnauthorizedAccessRequest } from '../customExceptions/auth/auth.exceptions';
 
 const _retrieveFileNames = (
 	files: { [fieldname: string]: Express.Multer.File[] } | Express.Multer.File[]
@@ -69,6 +70,11 @@ export const updateDisLikes = async (req: Request, res: Response, next: NextFunc
 
 export const deleteBuzz = async (req: Request, res: Response, next: NextFunction) => {
 	try {
+		const buzz = await buzzService.getBuzzById(req.params.id);
+
+		if (buzz.email !== req['userProfile'].email)
+			throw new UnauthorizedAccessRequest('action not allowed', 403);
+
 		const result = await buzzService.deleteBuzz(req.params.id);
 		res.json(result);
 	} catch (err) {
@@ -83,8 +89,12 @@ export const updateBuzz = async (req: Request, res: Response, next: NextFunction
 				'keys: likes, dislikes, likedBy, dislikedBy cannot be updated directly',
 				406
 			);
-		
-			const result = await buzzService.updateBuzz(req.params.id, req.body);
+		const buzz = await buzzService.getBuzzById(req.params.id);
+
+		if (buzz.email !== req['userProfile'].email)
+			throw new UnauthorizedAccessRequest('action not allowed', 403);
+
+		const result = await buzzService.updateBuzz(req.params.id, req.body);
 		res.json(result);
 	} catch (err) {
 		next(err);
@@ -110,5 +120,5 @@ const multerFileName = (
 export const upload = multer({
 	storage: getStorageEngine(multerDest, multerFileName),
 	limits: setSizeLimit(1024 * 1024 * 5),
-	fileFilter: getFilterUtil(['image/jpeg', 'image/png'], 'only images are allowed'),
+	fileFilter: getFilterUtil(['image/jpeg', 'image/png'], 'only images are allowed')
 });

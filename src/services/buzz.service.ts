@@ -141,3 +141,11 @@ export const updateBuzz = async (id: string, update: IBuzz) => {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 };
+
+export const getBuzzById = async (_id: string) => {
+	try {
+		return (await Buzz.findById(_id)).toJSON();
+	} catch (err) {
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
