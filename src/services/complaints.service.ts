@@ -5,6 +5,16 @@ import { DataValidationFailed } from '../customExceptions/validation/validation.
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
 
+export const getComplaint = async (_id: string) => {
+	try {
+		const result = await Complaints.findById(_id)
+		return result ? result.toJSON() : null;
+	} catch (err) {
+		console.log(err);
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500, err);
+	}
+};
+
 export const getComplaints = async (query: any, limit: number, skip: number) => {
 	const pipeline: Array<any> = [
 		{ $match: query },
@@ -79,7 +89,6 @@ export const getComplaints = async (query: any, limit: number, skip: number) => 
 	try {
 		return await Complaints.aggregate(pipeline).exec();
 	} catch (err) {
-		console.log(err);
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500, err);
 	}
 };
@@ -101,7 +110,6 @@ export const updateComplaint = async (id: string, complaintData: IComplaint) => 
 		await Complaints.findByIdAndUpdate(id, { $set: complaintData }, { runValidators: true }).exec();
 		return responses.updationSuccessful;
 	} catch (err) {
-		console.log(err, err.message);
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
@@ -119,17 +127,24 @@ const _ensureAdmin = (admins: Array<any>): string => {
 export const getAdmin = async (department: string, email: string) => {
 	try {
 		const departmentAdmins = await User.find({
-			$or: [
-				{ department, role: 'admin' },
-				{ role: 'su' }
-			],
-			email: { $ne: email },
+			$or: [{ department, role: 'admin' }, { role: 'su' }],
+			email: { $ne: email }
 		}).lean();
 
 		if (departmentAdmins.length === 1) {
 			return departmentAdmins[0].email;
 		}
 		return _ensureAdmin(departmentAdmins);
+	} catch (err) {
+		console.log(err);
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
+
+export const deleteComplaint = async (_id: string) => {
+	try {
+		await Complaints.findByIdAndDelete(_id);
+		return responses.removed;
 	} catch (err) {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}

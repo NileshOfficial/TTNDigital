@@ -1,4 +1,5 @@
-import {getDepartment} from '../services/departments.service';
+import { getDepartment } from '../services/departments.service';
+import { getUserByEmail } from '../services/user.service';
 
 export const validateDepartment = async (_id: string) => {
 	try {
@@ -7,4 +8,11 @@ export const validateDepartment = async (_id: string) => {
 	} catch (err) {
 		throw err;
 	}
+};
+
+export const validateAdmin = async (email: string) => {
+	try {
+		const result = await getUserByEmail(email);
+		return result && (result.role === 'su' || result.role === 'admin') ? true : false;
+	} catch (err) {}
 };

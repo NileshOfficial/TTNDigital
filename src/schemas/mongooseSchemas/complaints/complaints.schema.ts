@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import { Complaint } from './complaints.model';
-import { validateDepartment } from '../../../utils/mongoose.validators';
+import { validateDepartment, validateAdmin } from '../../../utils/mongoose.validators';
 
 const complaintSchema = new Schema({
     issueId: {
