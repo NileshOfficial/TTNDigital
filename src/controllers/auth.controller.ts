@@ -18,8 +18,7 @@ import { notify } from '../utils/mail.service';
 dotenv.config();
 
 const _download = async (path: string) => {
-	const pathSegments = path.split('/');
-	const filename = uuidv4() + pathSegments[pathSegments.length - 1];
+	const filename = uuidv4() + 'photo.jpg';
 	const filepath = [process.cwd(), UPLOAD_ROOT, UPLOAD_DESTINATION.user, filename].join('/');
 	const fileStream = createWriteStream(filepath);
 	try {
