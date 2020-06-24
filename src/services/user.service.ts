@@ -90,11 +90,3 @@ export const deleteUser = async (email: string) => {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 };
-
-export const getUserByEmail = async (email: string) => {
-	try {
-		return await User.findOne({ email }).lean();
-	} catch (err) {
-		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
-	}
-};

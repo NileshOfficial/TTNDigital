@@ -7,7 +7,7 @@ import * as responses from '../response.messages';
 
 export const getComplaint = async (_id: string) => {
 	try {
-		const result = await Complaints.findById(_id)
+		const result = await Complaints.findById(_id);
 		return result ? result.toJSON() : null;
 	} catch (err) {
 		console.log(err);
@@ -117,22 +117,21 @@ export const updateComplaint = async (id: string, complaintData: IComplaint) => 
 
 const _randomFromInterval = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
 
-const _ensureAdmin = (admins: Array<any>): string => {
+const _ensureAdmin = (admins: Array<any>): { name: string; email: string } => {
 	while (1) {
 		const idx = _randomFromInterval(0, admins.length - 1);
-		if (admins[idx].role !== 'su') return admins[idx].email;
+		if (admins[idx].role !== 'su') return { name: admins[idx].name, email: admins[idx].email };
 	}
 };
 
 export const getAdmin = async (department: string, email: string) => {
 	try {
 		const departmentAdmins = await User.find({
-			$or: [{ department, role: 'admin' }, { role: 'su' }],
-			email: { $ne: email }
+			$or: [{ department, role: 'admin', email: { $ne: email } }, { role: 'su' }]
 		}).lean();
 
 		if (departmentAdmins.length === 1) {
-			return departmentAdmins[0].email;
+			return { name: departmentAdmins[0].name, email: departmentAdmins[0].email };
 		}
 		return _ensureAdmin(departmentAdmins);
 	} catch (err) {

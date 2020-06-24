@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { UPLOAD_ROOT, UPLOAD_DESTINATION } from '../serve.conf';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import { internalServerErrorRepsonse } from '../response.messages';
+import { notify } from '../utils/mail.service';
 
 dotenv.config();
 
@@ -66,10 +67,16 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
 		newUser['role_code'] = ROLES[newUser.role];
 		token.data['id_token'] = sign(newUser, process.env.CLIENT_SECRET);
 
-		return res.json(token['data']);
+		res.json(token['data']);
+		notify(userProfile['email'], 'Signup confimation', {
+			heading: `welcome ${userData.name.split(' ')[0]}`,
+			content: `Welcome to To The New Digital platform, login to view what's trending in you feed.
+				You are yet to be assigned a department, once that is done you can log your concerns and issues.`,
+			salutation: 'thank you',
+			from: 'to the new digital team'
+		});
 	} catch (err) {
-		if(fileData)
-			unlink(fileData.filepath, () => {});
+		if (fileData) unlink(fileData.filepath, () => {});
 		if (err.code === 'DUPLICATE_KEY') return next(err);
 		return next(new authExceptions.InvalidTokenGrantCode('invalid code', 401));
 	}
