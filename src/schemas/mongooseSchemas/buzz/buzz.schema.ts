@@ -39,6 +39,10 @@ const buzzSchema = new Schema({
     dislikedBy: {
         type: [String],
         default: []
+    },
+    title: {
+        type: String,
+        default: ''
     }
 });
 

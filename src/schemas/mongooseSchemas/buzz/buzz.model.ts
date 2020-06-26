@@ -9,5 +9,6 @@ export interface Buzz extends Document {
     dislikes?: number,
     date?: number,
     likedBy: Array<string>,
-    dislikedBy: Array<string>
+    dislikedBy: Array<string>,
+    title: string
 }
