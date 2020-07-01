@@ -24,7 +24,7 @@ const userSchema = new Schema({
 	},
 
 	dob: {
-		type: Number,
+		type: String,
 	},
 
 	contact: {

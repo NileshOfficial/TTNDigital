@@ -74,10 +74,30 @@ export const updatePrivileges = async (email: string, update: { role?: string; d
 
 export const getUsers = async (query: any, limit: number, skip: number) => {
 	try {
-		return await User.find(query)
-			.limit(limit ? limit : 0)
-			.skip(skip ? skip : 0);
+		const pipeline: Array<any> = [
+			{ $match: query },
+			{
+				$lookup: {
+					from: 'departments',
+					localField: 'department',
+					foreignField: '_id',
+					as: 'department'
+				}
+			},
+			{
+				$set: {
+					department: { $arrayElemAt: [ '$department', 0 ] }
+				}
+			},
+			{
+				$skip: skip ? skip : 0
+			}
+		];
+		if(limit) pipeline.push( { $limit: limit });
+
+		return await User.aggregate(pipeline).exec();
 	} catch (err) {
+		console.log(err);
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 };
