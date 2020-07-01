@@ -91,7 +91,7 @@ export const updateBuzz = async (req: Request, res: Response, next: NextFunction
 			);
 		const buzz = await buzzService.getBuzzById(req.params.id);
 
-		if (req.files) req.body['files'] = _retrieveFileNames(req.files);
+		if (req.files) req.body['images'] = _retrieveFileNames(req.files);
 
 		if (buzz.email !== req['userProfile'].email)
 			throw new UnauthorizedAccessRequest('action not allowed', 403);
