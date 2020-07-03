@@ -129,6 +129,7 @@ export const deleteBuzz = async (id: string) => {
 		await Buzz.findByIdAndDelete(id);
 		return responses.removed;
 	} catch (err) {
+		console.log(err);
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 };
