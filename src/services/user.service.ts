@@ -3,6 +3,7 @@ import { User as IUser } from '../schemas/mongooseSchemas/user/user.model';
 import { DataValidationFailed, DuplicateKey } from '../customExceptions/validation/validation.exceptions';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
+import mongoose from 'mongoose';
 
 export const createUser = async (userData: IUser) => {
 	try {
@@ -73,6 +74,12 @@ export const updatePrivileges = async (email: string, update: { role?: string; d
 };
 
 export const getUsers = async (query: any, limit: number, skip: number) => {
+	if (query.department) {
+		query.department = query.department === 'notAssigned'
+			? { $exists: false }
+			: new mongoose.Types.ObjectId(query.department);
+	}
+
 	try {
 		const pipeline: Array<any> = [
 			{ $match: query },
@@ -86,14 +93,14 @@ export const getUsers = async (query: any, limit: number, skip: number) => {
 			},
 			{
 				$set: {
-					department: { $arrayElemAt: [ '$department', 0 ] }
+					department: { $arrayElemAt: ['$department', 0] }
 				}
 			},
 			{
 				$skip: skip ? skip : 0
 			}
 		];
-		if(limit) pipeline.push( { $limit: limit });
+		if (limit) pipeline.push({ $limit: limit });
 
 		return await User.aggregate(pipeline).exec();
 	} catch (err) {

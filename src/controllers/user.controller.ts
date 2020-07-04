@@ -19,11 +19,11 @@ export const updateUserProfile = async (req: Request, res: Response, next: NextF
 		delete req.body.picture;
 		if (req.body.email || req.body.role)
 			throw new UnauthorizedAccessRequest('Insufficient priviledges to update email or role fields', 403);
-		
+
 		const updationResponse = await userServices.updateUserProfile(req['userProfile'].email, req.body);
 		delete updationResponse.__v;
 		updationResponse['role_code'] = ROLES[updationResponse.role];
-		
+
 		const id_token = sign(updationResponse, process.env.CLIENT_SECRET);
 
 		res.json({ id_token });
@@ -36,13 +36,13 @@ export const updatePrivileges = async (req: Request, res: Response, next: NextFu
 	try {
 		const update = {
 			...(req.body.role && { role: req.body.role }),
-			...(req.body.department && { department: req.body.department }),
+			...(req.body.department && { department: req.body.department })
 		};
 
 		if (Object.keys(update).length === 0)
 			throw new DataValidationFailed('provide atleast one detail to update', 500);
 
-		const updationResponse = await userServices.updatePrivileges(req.params.email, update);
+		const updationResponse = await userServices.updatePrivileges(decodeURIComponent(req.params.email), update);
 
 		let response: any = updationSuccessful;
 
@@ -87,12 +87,12 @@ export const changeProfilePicture = async (req: Request, res: Response, next: Ne
 	try {
 		if (req.file) {
 			const updationResponse = await userServices.updateUserProfile(req['userProfile'].email, {
-				picture: req.file.filename,
+				picture: req.file.filename
 			} as User);
 
 			delete updationResponse.__v;
 			updationResponse['role_code'] = ROLES[updationResponse.role];
-			
+
 			const id_token = sign(updationResponse, process.env.CLIENT_SECRET);
 
 			res.json({ id_token });
@@ -121,5 +121,5 @@ const multerFileName = (
 export const upload = multer({
 	storage: getStorageEngine(multerDest, multerFileName),
 	limits: setSizeLimit(1024 * 1024 * 5),
-	fileFilter: getFilterUtil(['image/jpeg', 'image/png', 'image/gif'], 'only images are allowed'),
+	fileFilter: getFilterUtil(['image/jpeg', 'image/png', 'image/gif'], 'only images are allowed')
 });
