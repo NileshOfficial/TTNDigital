@@ -4,6 +4,7 @@ import { Complaint as IComplaint } from '../schemas/mongooseSchemas/complaints/c
 import { DataValidationFailed } from '../customExceptions/validation/validation.exceptions';
 import { InternalServerError } from '../customExceptions/generic/generic.exceptions';
 import * as responses from '../response.messages';
+import mongoose from 'mongoose';
 
 export const getComplaint = async (_id: string) => {
 	try {
@@ -16,6 +17,9 @@ export const getComplaint = async (_id: string) => {
 };
 
 export const getComplaints = async (query: any, limit: number, skip: number) => {
+	if(query.department)
+		query.department = new mongoose.Types.ObjectId(query.department);
+
 	const pipeline: Array<any> = [
 		{ $match: query },
 		{
