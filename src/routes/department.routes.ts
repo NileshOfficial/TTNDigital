@@ -4,8 +4,12 @@ import { checkPrivileges } from '../middlewares/auth.midware';
 
 export const departmentRouter = express.Router();
 
-departmentRouter.route('/')
-    .get(departmentControllers.getDeparments)
-    .post(checkPrivileges("su"), departmentControllers.addDepartment);
+departmentRouter
+	.route('/')
+	.get(departmentControllers.getDeparments)
+	.post(checkPrivileges('su'), departmentControllers.addDepartment);
 
-departmentRouter.delete('/:id', checkPrivileges("su"), departmentControllers.deleteDepartment);
+departmentRouter
+	.route('/:id')
+	.patch(checkPrivileges('su'), departmentControllers.updateDepartment)
+	.delete(checkPrivileges('su'), departmentControllers.deleteDepartment);

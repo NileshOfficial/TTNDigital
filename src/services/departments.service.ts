@@ -11,8 +11,8 @@ export const addDepartment = async (deptData: IDepartment) => {
 		await dept.save();
 		return responses.insertionSuccessful;
 	} catch (err) {
-        console.log(err);
-        if(err.code === 11000) throw new DuplicateKey('department name must be unique', 400);
+		console.log(err);
+		if (err.code === 11000) throw new DuplicateKey('department name must be unique', 400);
 		if (err.name === 'ValidationError') throw new DataValidationFailed(err.message, 400);
 		else throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
@@ -43,6 +43,15 @@ export const getDepartment = async (filter: any) => {
 		return await Department.findOne(filter);
 	} catch (err) {
 		console.log(err);
+		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
+	}
+};
+
+export const updateDepartment = async (_id: string, update: { name: string }) => {
+	try {
+		await Department.findByIdAndUpdate(_id, { $set: update });
+		return responses.updationSuccessful;
+	} catch (err) {
 		throw new InternalServerError(responses.internalServerErrorRepsonse, 500);
 	}
 };
